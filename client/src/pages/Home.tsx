@@ -61,6 +61,7 @@ import {
   YAxis,
 } from "recharts";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 type SafeQuestion = Omit<GeneratedQuestion, "answer"> & {
   questionToken: string;
@@ -196,6 +197,8 @@ export default function Home() {
   const [followUpOpen, setFollowUpOpen] = useState(() => followUpPreview);
   const [followUp, setFollowUp] = useState("");
   const [followUpReply, setFollowUpReply] = useState("");
+  const [, setLocation] = useLocation();
+  const [arcadeTransitioning, setArcadeTransitioning] = useState(false);
 
   const generateMutation = trpc.stem.generateQuestion.useMutation({
     onSuccess: data => {
@@ -284,6 +287,15 @@ export default function Home() {
         0
       );
   };
+  const openStemarcade = () => {
+    if (arcadeTransitioning) return;
+    setArcadeTransitioning(true);
+    window.sessionStorage.setItem(
+      "stemarcade-return-path",
+      `${window.location.pathname}${window.location.search}${window.location.hash}`
+    );
+    window.setTimeout(() => setLocation("/stemarcade"), 360);
+  };
   const generate = () =>
     generateMutation.mutate({
       request: { subject, topic, difficulty, questionType },
@@ -344,6 +356,9 @@ export default function Home() {
 
   return (
     <div className="orange-workspace orange-enter">
+      {arcadeTransitioning && (
+        <div className="stemarcade-route-transition" aria-hidden="true" />
+      )}
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 border-r border-orange-100/15 bg-[#140b06] px-4 py-5 lg:flex lg:flex-col">
         <Brand />
         <nav className="mt-9 space-y-1">
@@ -390,6 +405,7 @@ export default function Home() {
               scan={{ color: "#FF8400", speed: 50 }}
               className="font-mono-quest text-xs font-bold tracking-[.06em]"
               variant="desktop"
+              onClick={openStemarcade}
             />
           </div>
         </nav>
@@ -456,6 +472,7 @@ export default function Home() {
           scan={{ color: "#FF8400", speed: 50 }}
           className="font-mono-quest text-xs font-bold tracking-[.06em]"
           variant="mobile"
+          onClick={openStemarcade}
         />
       </div>
       <main className="mx-auto max-w-[1440px] px-5 py-7 lg:ml-60 lg:px-8">

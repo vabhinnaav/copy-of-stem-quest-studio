@@ -82,3 +82,13 @@
 - [x] Add a mobile-accessible STEMARCADE control and verify its focused interaction alongside the desktop sidebar version.
 
 - [x] Explicitly exercise the mobile STEMARCADE control’s focus and click behavior in the regression suite.
+
+- [x] Add a dedicated STEMARCADE route with an animated transition from the workspace controls.
+- [x] Integrate the supplied Gallery Tunnel source, imagery, and pointer interaction faithfully on the STEMARCADE page.
+- [x] Verify entry, return navigation, the tunnel rendering, and all existing learning flows without feature regressions.
+
+- [x] Add and regression-test a clear return path from STEMARCADE to the preserved learning workspace.
+
+- [x] Verify, through the routed application, that returning from STEMARCADE restores the learning workspace and its preview learner state.
+
+- [x] Preserve the originating workspace URL and query context so STEMARCADE returns learners to the exact view they left.

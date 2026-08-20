@@ -132,6 +132,7 @@ describe("redesigned learner journey UI", () => {
     expect(mobileStemarcade).toBeTruthy();
     await user.hover(desktopStemarcade!);
     await user.click(desktopStemarcade!);
+    expect(document.querySelector(".stemarcade-route-transition")).toBeTruthy();
     mobileStemarcade!.focus();
     expect(document.activeElement).toBe(mobileStemarcade);
     await user.click(mobileStemarcade!);
