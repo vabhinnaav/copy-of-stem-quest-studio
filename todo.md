@@ -139,3 +139,5 @@
 - [x] Remove the Back to arcade visual transition so games return directly to the revealed deck.
 
 - [x] Replace animated STEMARCADE navigation with direct card-to-game and game-to-selection-menu routing only.
+
+- [x] Require a continuous three-second Back to workspace press that plays the Galaxy Tunnel in reverse before restoring the learning workspace.

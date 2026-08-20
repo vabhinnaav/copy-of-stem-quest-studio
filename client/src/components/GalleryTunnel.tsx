@@ -62,6 +62,7 @@ interface ImageBoxProps {
   labelFill: string;
   labelColor: string;
   labelFont: CSSProperties;
+  reverse?: boolean;
   onHoldComplete?: () => void;
   style?: CSSProperties;
 }
@@ -87,6 +88,7 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
     labelFill = DEFAULTS.labelFill,
     labelColor = DEFAULTS.labelColor,
     labelFont = DEFAULTS.labelFont,
+    reverse = false,
     onHoldComplete,
     style,
   } = props;
@@ -110,13 +112,15 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
     return list.length ? list : DEFAULTS.colors;
   }, [colors]);
 
-  const cfgRef = useRef<{ speed: number; boost: number }>({
+  const cfgRef = useRef<{ speed: number; boost: number; direction: number }>({
     speed: 1,
     boost: 1,
+    direction: 1,
   });
   cfgRef.current = {
     speed: Math.max(0, speed) / 100,
     boost: Math.max(0, boost) / 10,
+    direction: reverse ? -1 : 1,
   };
 
   useEffect(() => {
@@ -364,7 +368,9 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
       const configuration = cfgRef.current;
       const boosting = pressed || now < boostUntil;
       frame.dataset.tunnelSpeed = boosting ? "boost" : "cruise";
-      scrollPos += boosting ? configuration.boost : configuration.speed;
+      scrollPos +=
+        (boosting ? configuration.boost : configuration.speed) *
+        configuration.direction;
       const wantedZ = -SCROLL_TO_Z * scrollPos;
       camera.position.z += CAMERA_CHASE * (wantedZ - camera.position.z);
 

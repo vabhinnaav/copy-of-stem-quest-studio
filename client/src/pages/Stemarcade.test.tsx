@@ -49,21 +49,45 @@ describe("STEMARCADE page", () => {
     expect(screen.getByLabelText("Coding")).toBeTruthy();
   });
 
-  it("returns to the learning workspace through the visible return control", () => {
+  it("returns to the learning workspace only after a continuous three-second press", () => {
     vi.useFakeTimers();
     window.history.pushState({}, "", "/stemarcade");
     sessionStorage.setItem("stemarcade-return-path", "/?workspacePreview=1");
     render(<Stemarcade />);
 
-    fireEvent.click(screen.getByRole("button", { name: /back to workspace/i }));
+    const control = screen.getByRole("button", {
+      name: /press and hold for three seconds to return to workspace/i,
+    });
+    fireEvent.pointerDown(control, { button: 0, pointerId: 1 });
     expect(
-      document.querySelector(".stemarcade-return-transition")
+      document.querySelector(".stemarcade-workspace-return-tunnel")
     ).toBeTruthy();
 
-    vi.advanceTimersByTime(260);
+    vi.advanceTimersByTime(3000);
     expect(`${window.location.pathname}${window.location.search}`).toBe(
       "/?workspacePreview=1"
     );
+  });
+
+  it("cancels the workspace return if the three-second press is released early", () => {
+    vi.useFakeTimers();
+    window.history.pushState({}, "", "/stemarcade?deckPreview=1");
+    sessionStorage.setItem("stemarcade-return-path", "/?workspacePreview=1");
+    render(<Stemarcade />);
+
+    const control = screen.getByRole("button", {
+      name: /press and hold for three seconds to return to workspace/i,
+    });
+    fireEvent.pointerDown(control, { button: 0, pointerId: 1 });
+    fireEvent.pointerUp(control, { pointerId: 1 });
+    vi.advanceTimersByTime(3000);
+
+    expect(`${window.location.pathname}${window.location.search}`).toBe(
+      "/stemarcade?deckPreview=1"
+    );
+    expect(
+      document.querySelector(".stemarcade-workspace-return-tunnel")
+    ).toBeNull();
   });
 
   it("opens a selected subject game immediately without a transition overlay", () => {
