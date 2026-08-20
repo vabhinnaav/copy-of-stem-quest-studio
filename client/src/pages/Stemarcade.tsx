@@ -100,7 +100,12 @@ export default function Stemarcade() {
   }
 
   return (
-    <main className="stemarcade-page" aria-label="STEMARCADE">
+    <main
+      className={`stemarcade-page ${
+        routeShowsDeck ? "stemarcade-page-direct-return" : ""
+      }`}
+      aria-label="STEMARCADE"
+    >
       {returning && (
         <div className="stemarcade-return-transition" aria-hidden="true" />
       )}

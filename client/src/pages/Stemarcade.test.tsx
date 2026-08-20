@@ -105,6 +105,11 @@ describe("STEMARCADE page", () => {
       "/stemarcade?deckPreview=1"
     );
     expect(
+      screen
+        .getByRole("main", { name: "STEMARCADE" })
+        .classList.contains("stemarcade-page-direct-return")
+    ).toBe(true);
+    expect(
       document.querySelector(".stemarcade-deck-layer.is-revealed")
     ).toBeTruthy();
     expect(screen.queryByTestId("gallery-tunnel")).toBeNull();

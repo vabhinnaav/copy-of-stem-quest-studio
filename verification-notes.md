@@ -22,3 +22,4 @@
 - After the return-state repair, the live Chemistry page’s Back to arcade action restored the visible fanned deck at `/stemarcade?deckPreview=1`; the deck’s Back to workspace action then restored `/?workspacePreview=1` with the workspace visible.
 - Regression reproduction: after Physics → Back to arcade, the URL is `/stemarcade?deckPreview=1` and deck elements are mounted, but the tunnel’s orange center remains visibly over blank card bounds rather than the rendered fanned deck.
 - Targeted live validation after the fix: Chemistry → Back to arcade returned to `/stemarcade?deckPreview=1` with the deck revealed, all card faces rendered, and no mounted tunnel layer to obscure the deck.
+- Back to arcade now applies the direct-return deck state without the STEMARCADE page-arrival animation; the focused return-flow regression passes.
