@@ -43,7 +43,7 @@ interface Smooth3DSlideshowProps {
 const STEM_SLIDES: Slide[] = [
   { title: "Physics", symbol: "⚛", accent: "#59d8ff" },
   { title: "Chemistry", symbol: "⌘", accent: "#8a7dff" },
-  { title: "Math", symbol: "⌬", accent: "#ff9b46" },
+  { title: "Math", symbol: "π", accent: "#ff9b46" },
   { title: "Coding", symbol: "∑", accent: "#59d18c" },
 ];
 

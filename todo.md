@@ -111,3 +111,10 @@
 - [x] Restore visible Enter Arcade cursor feedback at the center of the Galaxy Tunnel.
 - [x] Rename the existing fanned cards to Physics, Chemistry, Math, and Coding without changing their mechanics.
 - [x] Verify the focused update preserves all tunnel, hold, deck, and return interactions.
+
+- [x] Change only the Math card’s visible symbol.
+- [x] Restore visible Galaxy Tunnel speed boost feedback on a center click while preserving the three-second hold reveal.
+- [x] Verify center-click boost, continuous hold reveal, and existing card mechanics remain intact.
+
+- [x] Re-verify the updated tunnel supports both a quick center-click boost and a continuous three-second hold reveal.
+- [x] Reconfirm a deck card interaction after the updated tunnel behavior reveals the deck.

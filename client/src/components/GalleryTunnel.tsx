@@ -161,6 +161,7 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
     let raf = 0;
     let last = 0;
     let pressed = false;
+    let boostUntil = 0;
     let holdTimer: number | null = null;
     let holdTriggered = false;
     let alive = true;
@@ -361,7 +362,9 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
       last = now;
 
       const configuration = cfgRef.current;
-      scrollPos += pressed ? configuration.boost : configuration.speed;
+      const boosting = pressed || now < boostUntil;
+      frame.dataset.tunnelSpeed = boosting ? "boost" : "cruise";
+      scrollPos += boosting ? configuration.boost : configuration.speed;
       const wantedZ = -SCROLL_TO_Z * scrollPos;
       camera.position.z += CAMERA_CHASE * (wantedZ - camera.position.z);
 
@@ -421,6 +424,7 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
     };
     const onDown = () => {
       pressed = true;
+      boostUntil = performance.now() + 420;
       holdTriggered = false;
       if (holdTimer !== null) window.clearTimeout(holdTimer);
       holdTimer = window.setTimeout(() => {
