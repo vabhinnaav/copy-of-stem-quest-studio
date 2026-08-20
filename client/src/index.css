@@ -676,38 +676,3 @@
     transition: none;
   }
 }
-
-.stemarcade-landing-link { display: inline-flex; gap: .1em; letter-spacing: .02em; }
-.stemarcade-landing-link strong { color: #fb7d19; }
-
-.stemarcade-promo { position: relative; min-height: 100vh; overflow: hidden; background: #000; color: #fff; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
-.stemarcade-promo-bloom { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .9; }
-.stemarcade-promo-bloom > div { min-width: 100% !important; min-height: 100% !important; }
-.stemarcade-promo-nav, .stemarcade-promo-hero, .stemarcade-promo-about { position: relative; z-index: 1; }
-.stemarcade-promo-nav { width: min(1180px, calc(100% - 3rem)); margin: 0 auto; padding: 1.6rem 0; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
-.stemarcade-promo-wordmark { display: inline-flex; gap: .06em; font-size: 1.05rem; font-weight: 700; letter-spacing: -.06em; }
-.stemarcade-promo-wordmark strong { color: #ff7a18; }
-.stemarcade-promo-nav nav { display: flex; gap: clamp(1.1rem, 3vw, 2.5rem); font-size: .83rem; font-weight: 700; color: rgba(255,255,255,.9); }
-.stemarcade-promo-nav nav a { transition: color 160ms ease-out; }
-.stemarcade-promo-nav nav a:hover { color: #47ff89; }
-.stemarcade-promo-hero { width: min(1180px, calc(100% - 3rem)); min-height: calc(100vh - 82px); margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5rem 0 8rem; text-align: center; }
-.stemarcade-promo-title { width: min(100%, 950px); filter: drop-shadow(0 12px 48px rgba(0,0,0,.5)); }
-.stemarcade-promo-email { margin-top: 1.6rem; color: rgba(255,255,255,.8); font-size: .85rem; font-weight: 600; letter-spacing: .06em; }
-.stemarcade-promo-email:hover { color: #47ff89; }
-.stemarcade-promo-text-tunnel { width: min(100%, 760px); height: clamp(210px, 31vw, 360px); margin-top: 4rem; }
-.stemarcade-promo-about { min-height: 100vh; padding: clamp(6rem, 12vw, 11rem) max(1.5rem, calc((100vw - 1080px)/2)); background: linear-gradient(180deg, rgba(0,0,0,.12), #040706 40%, #000 100%); }
-.stemarcade-promo-kicker { color: #47ff89; font-size: .76rem; letter-spacing: .16em; font-weight: 800; text-transform: uppercase; }
-.stemarcade-promo-about h1 { max-width: 880px; margin-top: 1.2rem; font-size: clamp(2.8rem, 7vw, 6.5rem); line-height: .9; letter-spacing: -.065em; font-weight: 800; }
-.stemarcade-promo-about h1 span { color: #ff7a18; }
-.stemarcade-promo-copy { max-width: 650px; margin-top: 3rem; display: grid; gap: 1.2rem; color: rgba(255,255,255,.78); font-size: 1.05rem; line-height: 1.7; }
-.stemarcade-promo-cta { display: inline-flex; align-items: center; gap: .8rem; margin-top: 3.25rem; padding: 1rem 1.35rem; border-radius: 999px; background: #47ff89; color: #07130b; font-size: .95rem; font-weight: 800; transition: transform 160ms ease-out, background 160ms ease-out; }
-.stemarcade-promo-cta:hover { background: #fff; transform: translateY(-2px); }
-.stemarcade-promo-cta:active { transform: scale(.97); }
-@media (max-width: 640px) {
-  .stemarcade-promo-nav { width: min(100% - 2rem, 1180px); padding-top: 1.2rem; }
-  .stemarcade-promo-nav nav { gap: 1rem; font-size: .71rem; }
-  .stemarcade-promo-wordmark { display: none; }
-  .stemarcade-promo-hero { width: min(100% - 2rem, 1180px); min-height: calc(100vh - 60px); }
-  .stemarcade-promo-text-tunnel { margin-top: 3rem; height: 220px; }
-  .stemarcade-promo-about { padding: 6rem 1.25rem; }
-}

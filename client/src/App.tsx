@@ -4,7 +4,6 @@ import { DeviceAIMentor } from "@/components/DeviceAIMentor";
 import { DeviceProfileManager } from "@/components/DeviceProfileManager";
 import NotFound from "@/pages/NotFound";
 import Stemarcade from "@/pages/Stemarcade";
-import StemarcadePromo from "@/pages/StemarcadePromo";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -15,7 +14,6 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/stemarcade-promo"} component={StemarcadePromo} />
       <Route path={"/stemarcade/:subject"} component={Stemarcade} />
       <Route path={"/stemarcade"} component={Stemarcade} />
       <Route path={"/404"} component={NotFound} />
