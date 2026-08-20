@@ -5,132 +5,1159 @@ import { JourneyLanding } from "@/components/JourneyLanding";
 import { JOURNEY_EVENTS } from "@/lib/journeyContract";
 import { getActiveAIConnection } from "@/lib/aiConnection";
 import { prepareSectorEntry } from "@/lib/challengeLifecycle";
-import { createLocalLearner, getLevel, loadLocalLearner, loadOrCreateLocalLearner, recordLocalAttempt, saveLocalLearner, type LocalLearner } from "@/lib/localProgress";
+import {
+  createLocalLearner,
+  getLevel,
+  loadLocalLearner,
+  loadOrCreateLocalLearner,
+  recordLocalAttempt,
+  saveLocalLearner,
+  type LocalLearner,
+} from "@/lib/localProgress";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
-import { DIFFICULTY_LEVELS, LEVELS, QUESTION_TYPES, SUBJECT_CONFIG, type DifficultyLevel, type GeneratedQuestion, type QuestionType, type StemSubject } from "@shared/stem";
-import { Award, BarChart3, BookOpen, Bot, CheckCircle2, ChevronLeft, ChevronRight, CircleHelp, Code2, Flame, FlaskConical, Lightbulb, Loader2, MessageCircle, Play, Rocket, Sigma, Target, Trophy, Wrench, Zap, type LucideIcon } from "lucide-react";
+import {
+  DIFFICULTY_LEVELS,
+  LEVELS,
+  QUESTION_TYPES,
+  SUBJECT_CONFIG,
+  type DifficultyLevel,
+  type GeneratedQuestion,
+  type QuestionType,
+  type StemSubject,
+} from "@shared/stem";
+import {
+  Award,
+  BarChart3,
+  BookOpen,
+  Bot,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Code2,
+  Flame,
+  FlaskConical,
+  Lightbulb,
+  Loader2,
+  MessageCircle,
+  Play,
+  Rocket,
+  Sigma,
+  Target,
+  Trophy,
+  Wrench,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 import { useMemo, useState } from "react";
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { toast } from "sonner";
 
-type SafeQuestion = Omit<GeneratedQuestion, "answer"> & { questionToken: string };
+type SafeQuestion = Omit<GeneratedQuestion, "answer"> & {
+  questionToken: string;
+};
 type Evaluation = {
   isCorrect: boolean;
   feedback: string;
   explanation: string;
   correctAnswer: string;
   canonicalExplanation: string;
-  reward: { earnedXp: number; streak: number; totalXp: number; level: { level: number; name: string; badge: string } };
+  reward: {
+    earnedXp: number;
+    streak: number;
+    totalXp: number;
+    level: { level: number; name: string; badge: string };
+  };
 };
 
-const subjectIcons: Record<StemSubject, LucideIcon> = { science: FlaskConical, technology: Code2, engineering: Wrench, mathematics: Sigma };
-const subjectTheme: Record<StemSubject, { accent: string; soft: string; ring: string }> = {
-  science: { accent: "text-orange-200", soft: "bg-orange-300/10", ring: "hover:border-orange-300/50" },
-  technology: { accent: "text-amber-200", soft: "bg-amber-300/10", ring: "hover:border-amber-300/50" },
-  engineering: { accent: "text-rose-200", soft: "bg-rose-300/10", ring: "hover:border-rose-300/50" },
-  mathematics: { accent: "text-yellow-100", soft: "bg-yellow-300/10", ring: "hover:border-yellow-100/50" },
+const subjectIcons: Record<StemSubject, LucideIcon> = {
+  science: FlaskConical,
+  technology: Code2,
+  engineering: Wrench,
+  mathematics: Sigma,
 };
-const questionTypeLabels: Record<QuestionType, string> = { multiple_choice: "Multiple choice", short_answer: "Short answer", true_false: "True / false" };
-const followUpPreviewQuestion: SafeQuestion = { questionToken: "preview-question-session-token-12345", title: "Force and motion", prompt: "What happens to an object when the net force on it is zero?", subject: "science", topic: "Forces & Energy", difficulty: "foundation", questionType: "multiple_choice", choices: [{ id: "A", text: "It keeps its current state of motion." }, { id: "B", text: "It must speed up." }] as GeneratedQuestion["choices"], hint: "Think about Newton's first law.", explanation: "A zero net force means there is no acceleration, so motion stays unchanged." };
-const followUpPreviewEvaluation: Evaluation = { isCorrect: false, feedback: "Review the relationship between net force and acceleration.", explanation: "No net force means no acceleration. The object can remain still or continue moving at a constant speed in a straight line.", correctAnswer: "A", canonicalExplanation: "A zero net force means there is no acceleration, so motion stays unchanged.", reward: { earnedXp: 8, streak: 1, totalXp: 8, level: { level: 1, name: "Curious Starter", badge: "Orbit" } } };
+const subjectTheme: Record<
+  StemSubject,
+  { accent: string; soft: string; ring: string }
+> = {
+  science: {
+    accent: "text-orange-200",
+    soft: "bg-orange-300/10",
+    ring: "hover:border-orange-300/50",
+  },
+  technology: {
+    accent: "text-amber-200",
+    soft: "bg-amber-300/10",
+    ring: "hover:border-amber-300/50",
+  },
+  engineering: {
+    accent: "text-rose-200",
+    soft: "bg-rose-300/10",
+    ring: "hover:border-rose-300/50",
+  },
+  mathematics: {
+    accent: "text-yellow-100",
+    soft: "bg-yellow-300/10",
+    ring: "hover:border-yellow-100/50",
+  },
+};
+const questionTypeLabels: Record<QuestionType, string> = {
+  multiple_choice: "Multiple choice",
+  short_answer: "Short answer",
+  true_false: "True / false",
+};
+const followUpPreviewQuestion: SafeQuestion = {
+  questionToken: "preview-question-session-token-12345",
+  title: "Force and motion",
+  prompt: "What happens to an object when the net force on it is zero?",
+  subject: "science",
+  topic: "Forces & Energy",
+  difficulty: "foundation",
+  questionType: "multiple_choice",
+  choices: [
+    { id: "A", text: "It keeps its current state of motion." },
+    { id: "B", text: "It must speed up." },
+  ] as GeneratedQuestion["choices"],
+  hint: "Think about Newton's first law.",
+  explanation:
+    "A zero net force means there is no acceleration, so motion stays unchanged.",
+};
+const followUpPreviewEvaluation: Evaluation = {
+  isCorrect: false,
+  feedback: "Review the relationship between net force and acceleration.",
+  explanation:
+    "No net force means no acceleration. The object can remain still or continue moving at a constant speed in a straight line.",
+  correctAnswer: "A",
+  canonicalExplanation:
+    "A zero net force means there is no acceleration, so motion stays unchanged.",
+  reward: {
+    earnedXp: 8,
+    streak: 1,
+    totalXp: 8,
+    level: { level: 1, name: "Curious Starter", badge: "Orbit" },
+  },
+};
 
-function Brand() { return <span className="orange-wordmark text-xl"><span className="stem">STEM</span><span className="quest">QUEST</span></span>; }
+function Brand() {
+  return (
+    <span className="orange-wordmark text-xl">
+      <span className="stem">STEM</span>
+      <span className="quest">QUEST</span>
+    </span>
+  );
+}
 
-function Onboarding({ onBegin }: { onBegin: (name: string) => void }) { return <JourneyLanding onEnter={onBegin} />; }
+function Onboarding({ onBegin }: { onBegin: (name: string) => void }) {
+  return <JourneyLanding onEnter={onBegin} />;
+}
 
 export default function Home() {
   const previewQuery = new URLSearchParams(window.location.search);
-  const previewMode = previewQuery.has("workspacePreview") || previewQuery.has("practicePreview") || previewQuery.has("followUpPreview");
-  const followUpPreview = new URLSearchParams(window.location.search).has("followUpPreview");
+  const previewMode =
+    previewQuery.has("workspacePreview") ||
+    previewQuery.has("practicePreview") ||
+    previewQuery.has("followUpPreview");
+  const followUpPreview = new URLSearchParams(window.location.search).has(
+    "followUpPreview"
+  );
   const [learner, setLearner] = useState<LocalLearner>(() => {
     const stored = loadLocalLearner();
     return stored.name || !previewMode ? stored : createPreviewLearner();
   });
-  const [workspaceOpen, setWorkspaceOpen] = useState(() => previewQuery.has("practicePreview") || previewQuery.has("followUpPreview"));
+  const [workspaceOpen, setWorkspaceOpen] = useState(
+    () =>
+      previewQuery.has("practicePreview") || previewQuery.has("followUpPreview")
+  );
   const [subject, setSubject] = useState<StemSubject>("science");
   const [topic, setTopic] = useState(SUBJECT_CONFIG.science.topics[0]);
   const [difficulty, setDifficulty] = useState<DifficultyLevel>("foundation");
-  const [questionType, setQuestionType] = useState<QuestionType>("multiple_choice");
-  const [question, setQuestion] = useState<SafeQuestion | null>(() => followUpPreview ? followUpPreviewQuestion : null);
-  const [selectedAnswer, setSelectedAnswer] = useState(() => followUpPreview ? "B" : "");
+  const [questionType, setQuestionType] =
+    useState<QuestionType>("multiple_choice");
+  const [question, setQuestion] = useState<SafeQuestion | null>(() =>
+    followUpPreview ? followUpPreviewQuestion : null
+  );
+  const [selectedAnswer, setSelectedAnswer] = useState(() =>
+    followUpPreview ? "B" : ""
+  );
   const [shortAnswer, setShortAnswer] = useState("");
-  const [evaluation, setEvaluation] = useState<Evaluation | null>(() => followUpPreview ? followUpPreviewEvaluation : null);
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(() =>
+    followUpPreview ? followUpPreviewEvaluation : null
+  );
   const [hintOpen, setHintOpen] = useState(false);
   const [followUpOpen, setFollowUpOpen] = useState(() => followUpPreview);
   const [followUp, setFollowUp] = useState("");
   const [followUpReply, setFollowUpReply] = useState("");
 
   const generateMutation = trpc.stem.generateQuestion.useMutation({
-    onSuccess: data => { setQuestion(data as SafeQuestion); setSelectedAnswer(""); setShortAnswer(""); setEvaluation(null); setHintOpen(false); setFollowUpOpen(false); setFollowUp(""); setFollowUpReply(""); },
+    onSuccess: data => {
+      setQuestion(data as SafeQuestion);
+      setSelectedAnswer("");
+      setShortAnswer("");
+      setEvaluation(null);
+      setHintOpen(false);
+      setFollowUpOpen(false);
+      setFollowUp("");
+      setFollowUpReply("");
+    },
     onError: error => toast.error(error.message),
   });
-  const submitMutation = trpc.stem.submitAnswer.useMutation({ onError: error => toast.error(error.message) });
-  const followUpMutation = trpc.stem.followUp.useMutation({ onSuccess: data => setFollowUpReply(data.reply), onError: error => toast.error(error.message) });
+  const submitMutation = trpc.stem.submitAnswer.useMutation({
+    onError: error => toast.error(error.message),
+  });
+  const followUpMutation = trpc.stem.followUp.useMutation({
+    onSuccess: data => setFollowUpReply(data.reply),
+    onError: error => toast.error(error.message),
+  });
 
-  const updateLearner = (next: LocalLearner) => { setLearner(next); saveLocalLearner(next); };
+  const updateLearner = (next: LocalLearner) => {
+    setLearner(next);
+    saveLocalLearner(next);
+  };
   const level = getLevel(learner.totalXp);
   const nextLevel = LEVELS.find(item => item.level === level.level + 1);
-  const rankProgress = nextLevel ? Math.min(100, Math.max(0, Math.round(((learner.totalXp - level.minXp) / (nextLevel.minXp - level.minXp)) * 100))) : 100;
-  const attempted = learner.progress.reduce((total, item) => total + item.questionsAttempted, 0);
-  const correct = learner.progress.reduce((total, item) => total + item.questionsCorrect, 0);
+  const rankProgress = nextLevel
+    ? Math.min(
+        100,
+        Math.max(
+          0,
+          Math.round(
+            ((learner.totalXp - level.minXp) /
+              (nextLevel.minXp - level.minXp)) *
+              100
+          )
+        )
+      )
+    : 100;
+  const attempted = learner.progress.reduce(
+    (total, item) => total + item.questionsAttempted,
+    0
+  );
+  const correct = learner.progress.reduce(
+    (total, item) => total + item.questionsCorrect,
+    0
+  );
   const accuracy = attempted ? Math.round((correct / attempted) * 100) : 0;
   const activeSubject = SUBJECT_CONFIG[subject];
   const ActiveIcon = subjectIcons[subject];
   const activeTheme = subjectTheme[subject];
-  const progressBySubject = useMemo(() => new Map(learner.progress.map(item => [item.subject, item])), [learner.progress]);
+  const progressBySubject = useMemo(
+    () => new Map(learner.progress.map(item => [item.subject, item])),
+    [learner.progress]
+  );
   const recentActivity = learner.activity.slice(0, 5);
 
-  const clearChallenge = () => { setQuestion(null); setSelectedAnswer(""); setShortAnswer(""); setEvaluation(null); setHintOpen(false); setFollowUpOpen(false); setFollowUp(""); setFollowUpReply(""); };
-  const launch = (nextSubject: StemSubject) => { const entry = prepareSectorEntry(nextSubject); clearChallenge(); setSubject(entry.subject); setTopic(entry.topic); setWorkspaceOpen(true); };
-  const showOverview = (sectionId?: string) => { clearChallenge(); setWorkspaceOpen(false); if (sectionId) window.setTimeout(() => document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" }), 0); };
-  const generate = () => generateMutation.mutate({ request: { subject, topic, difficulty, questionType }, connection: getActiveAIConnection() });
-  const answerValue = question?.questionType === "short_answer" ? shortAnswer.trim() : selectedAnswer;
+  const clearChallenge = () => {
+    setQuestion(null);
+    setSelectedAnswer("");
+    setShortAnswer("");
+    setEvaluation(null);
+    setHintOpen(false);
+    setFollowUpOpen(false);
+    setFollowUp("");
+    setFollowUpReply("");
+  };
+  const launch = (nextSubject: StemSubject) => {
+    const entry = prepareSectorEntry(nextSubject);
+    clearChallenge();
+    setSubject(entry.subject);
+    setTopic(entry.topic);
+    setWorkspaceOpen(true);
+  };
+  const showOverview = (sectionId?: string) => {
+    clearChallenge();
+    setWorkspaceOpen(false);
+    if (sectionId)
+      window.setTimeout(
+        () =>
+          document
+            .getElementById(sectionId)
+            ?.scrollIntoView({ behavior: "smooth" }),
+        0
+      );
+  };
+  const generate = () =>
+    generateMutation.mutate({
+      request: { subject, topic, difficulty, questionType },
+      connection: getActiveAIConnection(),
+    });
+  const answerValue =
+    question?.questionType === "short_answer"
+      ? shortAnswer.trim()
+      : selectedAnswer;
   const submit = () => {
     if (!question || evaluation) return;
-    if (!answerValue) return toast.error("Choose or enter an answer before submitting.");
-    submitMutation.mutate({ questionToken: question.questionToken, answer: answerValue, connection: getActiveAIConnection() }, {
-      onSuccess: data => {
-        const recorded = recordLocalAttempt(learner, { subject: question.subject, topic: question.topic, difficulty: question.difficulty, isCorrect: data.isCorrect });
-        updateLearner(recorded.learner);
-        setEvaluation({ ...data, reward: recorded.reward });
+    if (!answerValue)
+      return toast.error("Choose or enter an answer before submitting.");
+    submitMutation.mutate(
+      {
+        questionToken: question.questionToken,
+        answer: answerValue,
+        connection: getActiveAIConnection(),
       },
-    });
+      {
+        onSuccess: data => {
+          const recorded = recordLocalAttempt(learner, {
+            subject: question.subject,
+            topic: question.topic,
+            difficulty: question.difficulty,
+            isCorrect: data.isCorrect,
+          });
+          updateLearner(recorded.learner);
+          setEvaluation({ ...data, reward: recorded.reward });
+        },
+      }
+    );
   };
   const askFollowUp = () => {
     if (!question || !evaluation || !followUp.trim() || !answerValue) return;
-    followUpMutation.mutate({ questionToken: question.questionToken, answer: answerValue, evaluation: { isCorrect: evaluation.isCorrect, feedback: evaluation.feedback, explanation: evaluation.explanation }, followUp: followUp.trim(), connection: getActiveAIConnection() });
+    followUpMutation.mutate({
+      questionToken: question.questionToken,
+      answer: answerValue,
+      evaluation: {
+        isCorrect: evaluation.isCorrect,
+        feedback: evaluation.feedback,
+        explanation: evaluation.explanation,
+      },
+      followUp: followUp.trim(),
+      connection: getActiveAIConnection(),
+    });
   };
 
-  if (!learner.name) return <Onboarding onBegin={name => { clearChallenge(); setLearner(loadOrCreateLocalLearner(name)); }} />;
+  if (!learner.name)
+    return (
+      <Onboarding
+        onBegin={name => {
+          clearChallenge();
+          setLearner(loadOrCreateLocalLearner(name));
+        }}
+      />
+    );
 
-  return <div className="orange-workspace orange-enter">
-    <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 border-r border-orange-100/15 bg-[#140b06] px-4 py-5 lg:flex lg:flex-col"><Brand /><nav className="mt-9 space-y-1"><SideAction label="Overview" icon={BarChart3} active={!workspaceOpen} onClick={() => showOverview()} /><SideAction label="Practice" icon={Play} active={workspaceOpen} onClick={() => workspaceOpen ? document.getElementById("practice-settings")?.scrollIntoView({ behavior: "smooth" }) : launch("science")} /><SideAction label="Activity" icon={BookOpen} onClick={() => showOverview("activity")} /></nav><div className="mt-auto border-t border-orange-100/12 pt-4"><p className="text-xs font-semibold text-orange-50">{learner.name}</p><p className="mt-1 font-mono-quest text-[10px] tracking-[.12em] text-orange-100/45">LEVEL {level.level} · {learner.totalXp} XP</p></div></aside>
-    <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-orange-100/15 bg-[#100804]/95 px-5 backdrop-blur lg:ml-60 lg:px-8"><div className="lg:hidden"><Brand /></div><div className="hidden lg:block"><p className="text-sm font-semibold text-orange-50">{workspaceOpen ? `${activeSubject.label} practice` : "Learning workspace"}</p><p className="mt-0.5 text-xs text-orange-100/45">{workspaceOpen ? "Choose settings, then generate a question." : "Your learning story, kept on this device."}</p></div><div className="flex items-center gap-2"><div className="hidden border border-orange-100/15 px-2.5 py-1.5 text-xs text-orange-100/65 sm:block"><span className="font-semibold text-orange-50">{learner.streak}</span> day streak</div><button onClick={() => window.dispatchEvent(new Event(JOURNEY_EVENTS.openMentor))} className="orange-outline-button px-3 py-2 text-xs font-semibold">AI mentor</button><button onClick={() => window.dispatchEvent(new Event(JOURNEY_EVENTS.openProfile))} className="orange-solid-button px-3 py-2 text-xs">Profile</button></div></header>
-    <main className="mx-auto max-w-[1440px] px-5 py-7 lg:ml-60 lg:px-8">
-      {workspaceOpen ? <PracticeWorkspace subject={subject} topic={topic} difficulty={difficulty} questionType={questionType} question={question} evaluation={evaluation} selectedAnswer={selectedAnswer} shortAnswer={shortAnswer} hintOpen={hintOpen} followUpOpen={followUpOpen} followUp={followUp} followUpReply={followUpReply} generatePending={generateMutation.isPending} submitPending={submitMutation.isPending} followUpPending={followUpMutation.isPending} onBack={() => { clearChallenge(); setWorkspaceOpen(false); }} onTopic={value => { setTopic(value); clearChallenge(); }} onDifficulty={value => { setDifficulty(value); clearChallenge(); }} onQuestionType={value => { setQuestionType(value); clearChallenge(); }} onGenerate={generate} onSelectAnswer={setSelectedAnswer} onShortAnswer={setShortAnswer} onHint={() => setHintOpen(value => !value)} onSubmit={submit} onOpenFollowUp={() => setFollowUpOpen(value => !value)} onFollowUp={setFollowUp} onAskFollowUp={askFollowUp} /> : <><Overview learner={learner} level={level} nextLevel={nextLevel} rankProgress={rankProgress} accuracy={accuracy} attempted={attempted} progressBySubject={progressBySubject} recentActivity={recentActivity} onLaunch={launch} /><WeeklyCadence activity={learner.activity} /></>}
-    </main>
-  </div>;
+  return (
+    <div className="orange-workspace orange-enter">
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 border-r border-orange-100/15 bg-[#140b06] px-4 py-5 lg:flex lg:flex-col">
+        <Brand />
+        <nav className="mt-9 space-y-1">
+          <SideAction
+            label="Overview"
+            icon={BarChart3}
+            active={!workspaceOpen}
+            onClick={() => showOverview()}
+          />
+          <SideAction
+            label="Practice"
+            icon={Play}
+            active={workspaceOpen}
+            onClick={() =>
+              workspaceOpen
+                ? document
+                    .getElementById("practice-settings")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                : launch("science")
+            }
+          />
+          <SideAction
+            label="Activity"
+            icon={BookOpen}
+            onClick={() => showOverview("activity")}
+          />
+        </nav>
+        <div className="mt-auto border-t border-orange-100/12 pt-4">
+          <p className="text-xs font-semibold text-orange-50">{learner.name}</p>
+          <p className="mt-1 font-mono-quest text-[10px] tracking-[.12em] text-orange-100/45">
+            LEVEL {level.level} · {learner.totalXp} XP
+          </p>
+        </div>
+      </aside>
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-orange-100/15 bg-[#100804]/95 px-5 backdrop-blur lg:ml-60 lg:px-8">
+        <div className="lg:hidden">
+          <Brand />
+        </div>
+        <div className="hidden lg:block">
+          <p className="text-sm font-semibold text-orange-50">
+            {workspaceOpen
+              ? `${activeSubject.label} practice`
+              : "Learning workspace"}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="hidden border border-orange-100/15 px-2.5 py-1.5 text-xs text-orange-100/65 sm:block">
+            <span className="font-semibold text-orange-50">
+              {learner.streak}
+            </span>{" "}
+            day streak
+          </div>
+          <button
+            onClick={() =>
+              window.dispatchEvent(new Event(JOURNEY_EVENTS.openMentor))
+            }
+            className="orange-outline-button px-3 py-2 text-xs font-semibold"
+          >
+            AI mentor
+          </button>
+          <button
+            onClick={() =>
+              window.dispatchEvent(new Event(JOURNEY_EVENTS.openProfile))
+            }
+            className="orange-solid-button px-3 py-2 text-xs"
+          >
+            Profile
+          </button>
+        </div>
+      </header>
+      <main className="mx-auto max-w-[1440px] px-5 py-7 lg:ml-60 lg:px-8">
+        {workspaceOpen ? (
+          <PracticeWorkspace
+            subject={subject}
+            topic={topic}
+            difficulty={difficulty}
+            questionType={questionType}
+            question={question}
+            evaluation={evaluation}
+            selectedAnswer={selectedAnswer}
+            shortAnswer={shortAnswer}
+            hintOpen={hintOpen}
+            followUpOpen={followUpOpen}
+            followUp={followUp}
+            followUpReply={followUpReply}
+            generatePending={generateMutation.isPending}
+            submitPending={submitMutation.isPending}
+            followUpPending={followUpMutation.isPending}
+            onBack={() => {
+              clearChallenge();
+              setWorkspaceOpen(false);
+            }}
+            onTopic={value => {
+              setTopic(value);
+              clearChallenge();
+            }}
+            onDifficulty={value => {
+              setDifficulty(value);
+              clearChallenge();
+            }}
+            onQuestionType={value => {
+              setQuestionType(value);
+              clearChallenge();
+            }}
+            onGenerate={generate}
+            onSelectAnswer={setSelectedAnswer}
+            onShortAnswer={setShortAnswer}
+            onHint={() => setHintOpen(value => !value)}
+            onSubmit={submit}
+            onOpenFollowUp={() => setFollowUpOpen(value => !value)}
+            onFollowUp={setFollowUp}
+            onAskFollowUp={askFollowUp}
+          />
+        ) : (
+          <>
+            <Overview
+              learner={learner}
+              level={level}
+              nextLevel={nextLevel}
+              rankProgress={rankProgress}
+              accuracy={accuracy}
+              attempted={attempted}
+              progressBySubject={progressBySubject}
+              recentActivity={recentActivity}
+              onLaunch={launch}
+            />
+            <WeeklyCadence activity={learner.activity} />
+          </>
+        )}
+      </main>
+    </div>
+  );
 }
 
-function Overview({ learner, level, nextLevel, rankProgress, accuracy, attempted, progressBySubject, recentActivity, onLaunch }: { learner: LocalLearner; level: { level: number; name: string; badge: string; minXp: number }; nextLevel?: { name: string; minXp: number }; rankProgress: number; accuracy: number; attempted: number; progressBySubject: Map<StemSubject, { questionsAttempted: number; questionsCorrect: number }>; recentActivity: LocalLearner["activity"]; onLaunch: (subject: StemSubject) => void }) {
-  return <><section className="grid gap-10 xl:grid-cols-[minmax(0,1.3fr)_360px]"><div className="flow-hero px-1 py-6 sm:py-8"><p className="font-mono-quest text-[10px] tracking-[.16em] text-cyan-300">WELCOME BACK</p><h1 className="mt-3 text-3xl font-extrabold tracking-[-.05em] text-white sm:text-4xl">Keep your learning moving, {learner.name.split(" ")[0]}.</h1><p className="mt-3 max-w-xl text-sm leading-6 text-slate-400">Pick a STEM area, set the challenge, and keep a clearer record of how your understanding is growing.</p><div className="mt-7 flex flex-wrap gap-3"><Button onClick={() => onLaunch("science")} className="rounded-lg bg-cyan-300 px-4 font-bold text-slate-950 hover:bg-cyan-200"><Rocket className="mr-2 h-4 w-4" />Start practice</Button><button onClick={() => document.getElementById("subjects")?.scrollIntoView({ behavior: "smooth" })} className="rounded-lg border border-white/[.12] px-4 text-sm font-semibold text-slate-200 hover:bg-white/[.05]">Browse subjects</button></div></div><div className="flow-milestone py-6 sm:py-8"><div className="flex items-start justify-between"><div><p className="text-xs font-semibold text-slate-400">Current level</p><h2 className="mt-1 text-xl font-bold text-white">{level.name}</h2></div><div className="grid h-10 w-10 place-items-center rounded-lg bg-cyan-300/10"><Trophy className="h-5 w-5 text-cyan-300" /></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-white/[.08]"><div className="h-full rounded-full bg-cyan-300" style={{ width: `${rankProgress}%` }} /></div><div className="mt-3 flex justify-between text-xs text-slate-500"><span>{learner.totalXp} XP</span><span>{nextLevel ? `${Math.max(0, nextLevel.minXp - learner.totalXp)} to ${nextLevel.name}` : "Top level"}</span></div><div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/[.07] pt-5"><MiniStat label="Streak" value={`${learner.streak}d`} /><MiniStat label="Accuracy" value={`${accuracy}%`} /><MiniStat label="Solved" value={`${attempted}`} /></div></div></section><section id="subjects" className="mt-14"><SectionHead label="SUBJECT LIBRARY" title="Choose a practice area" detail="Each area opens with settings first. A question is generated only when you start." /><div className="mt-5 grid gap-x-7 gap-y-0 sm:grid-cols-2 xl:grid-cols-4">{(Object.keys(SUBJECT_CONFIG) as StemSubject[]).map(subject => <SubjectCard key={subject} subject={subject} progress={progressBySubject.get(subject)} onLaunch={onLaunch} />)}</div></section><section id="activity" className="mt-14 grid gap-10 xl:grid-cols-[1.2fr_.8fr]"><div className="flow-note"><SectionHead label="PROGRESS" title="Your subject performance" /><div className="mt-6 space-y-5">{(Object.keys(SUBJECT_CONFIG) as StemSubject[]).map(subject => { const progress = progressBySubject.get(subject); const percent = progress?.questionsAttempted ? Math.round((progress.questionsCorrect / progress.questionsAttempted) * 100) : 0; return <div key={subject}><div className="flex justify-between text-sm"><span className="font-medium text-slate-300">{SUBJECT_CONFIG[subject].label}</span><span className="text-slate-500">{progress?.questionsCorrect ?? 0}/{progress?.questionsAttempted ?? 0} · {percent}%</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[.07]"><div className="h-full rounded-full bg-cyan-300" style={{ width: `${percent}%` }} /></div></div>; })}</div></div><div className="flow-note"><SectionHead label="RECENT ACTIVITY" title="Latest sessions" />{recentActivity.length ? <div className="mt-5 divide-y divide-white/[.07]">{recentActivity.map(item => <div key={item.id} className="flex items-start gap-3 py-3"><div className="mt-0.5 grid h-7 w-7 place-items-center rounded-md bg-cyan-300/10"><Zap className="h-3.5 w-3.5 text-cyan-300" /></div><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-200">{item.title}</p><p className="mt-1 text-xs text-slate-500">{item.detail}</p></div><span className="text-xs font-semibold text-cyan-300">+{item.xpChange}</span></div>)}</div> : <p className="mt-5 text-sm leading-6 text-slate-500">Your completed questions will appear here.</p>}</div></section></>;
+function Overview({
+  learner,
+  level,
+  nextLevel,
+  rankProgress,
+  accuracy,
+  attempted,
+  progressBySubject,
+  recentActivity,
+  onLaunch,
+}: {
+  learner: LocalLearner;
+  level: { level: number; name: string; badge: string; minXp: number };
+  nextLevel?: { name: string; minXp: number };
+  rankProgress: number;
+  accuracy: number;
+  attempted: number;
+  progressBySubject: Map<
+    StemSubject,
+    { questionsAttempted: number; questionsCorrect: number }
+  >;
+  recentActivity: LocalLearner["activity"];
+  onLaunch: (subject: StemSubject) => void;
+}) {
+  return (
+    <>
+      <section className="grid gap-10 xl:grid-cols-[minmax(0,1.3fr)_360px]">
+        <div className="flow-hero px-1 py-6 sm:py-8">
+          <h1 className="text-3xl font-extrabold tracking-[-.05em] text-white sm:text-4xl">
+            Keep your learning moving, {learner.name.split(" ")[0]}.
+          </h1>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Button
+              onClick={() => onLaunch("science")}
+              className="rounded-lg bg-cyan-300 px-4 font-bold text-slate-950 hover:bg-cyan-200"
+            >
+              <Rocket className="mr-2 h-4 w-4" />
+              Start practice
+            </Button>
+            <button
+              onClick={() =>
+                document
+                  .getElementById("subjects")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="rounded-lg border border-white/[.12] px-4 text-sm font-semibold text-slate-200 hover:bg-white/[.05]"
+            >
+              Browse subjects
+            </button>
+          </div>
+        </div>
+        <div className="flow-milestone py-6 sm:py-8">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-400">
+                Current level
+              </p>
+              <h2 className="mt-1 text-xl font-bold text-white">
+                {level.name}
+              </h2>
+            </div>
+            <div className="grid h-10 w-10 place-items-center rounded-lg bg-cyan-300/10">
+              <Trophy className="h-5 w-5 text-cyan-300" />
+            </div>
+          </div>
+          <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/[.08]">
+            <div
+              className="h-full rounded-full bg-cyan-300"
+              style={{ width: `${rankProgress}%` }}
+            />
+          </div>
+          <div className="mt-3 flex justify-between text-xs text-slate-500">
+            <span>{learner.totalXp} XP</span>
+            <span>
+              {nextLevel
+                ? `${Math.max(0, nextLevel.minXp - learner.totalXp)} to ${nextLevel.name}`
+                : "Top level"}
+            </span>
+          </div>
+          <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/[.07] pt-5">
+            <MiniStat label="Streak" value={`${learner.streak}d`} />
+            <MiniStat label="Accuracy" value={`${accuracy}%`} />
+            <MiniStat label="Solved" value={`${attempted}`} />
+          </div>
+        </div>
+      </section>
+      <section id="subjects" className="mt-14">
+        <SectionHead title="Choose a practice area" />
+        <div className="mt-5 grid gap-x-7 gap-y-0 sm:grid-cols-2 xl:grid-cols-4">
+          {(Object.keys(SUBJECT_CONFIG) as StemSubject[]).map(subject => (
+            <SubjectCard
+              key={subject}
+              subject={subject}
+              progress={progressBySubject.get(subject)}
+              onLaunch={onLaunch}
+            />
+          ))}
+        </div>
+      </section>
+      <section
+        id="activity"
+        className="mt-14 grid gap-10 xl:grid-cols-[1.2fr_.8fr]"
+      >
+        <div className="flow-note">
+          <SectionHead title="Your subject performance" />
+          <div className="mt-6 space-y-5">
+            {(Object.keys(SUBJECT_CONFIG) as StemSubject[]).map(subject => {
+              const progress = progressBySubject.get(subject);
+              const percent = progress?.questionsAttempted
+                ? Math.round(
+                    (progress.questionsCorrect / progress.questionsAttempted) *
+                      100
+                  )
+                : 0;
+              return (
+                <div key={subject}>
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-slate-300">
+                      {SUBJECT_CONFIG[subject].label}
+                    </span>
+                    <span className="text-slate-500">
+                      {progress?.questionsCorrect ?? 0}/
+                      {progress?.questionsAttempted ?? 0} · {percent}%
+                    </span>
+                  </div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[.07]">
+                    <div
+                      className="h-full rounded-full bg-cyan-300"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flow-note">
+          <SectionHead title="Latest sessions" />
+          {recentActivity.length ? (
+            <div className="mt-5 divide-y divide-white/[.07]">
+              {recentActivity.map(item => (
+                <div key={item.id} className="flex items-start gap-3 py-3">
+                  <div className="mt-0.5 grid h-7 w-7 place-items-center rounded-md bg-cyan-300/10">
+                    <Zap className="h-3.5 w-3.5 text-cyan-300" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-slate-200">
+                      {item.title}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">{item.detail}</p>
+                  </div>
+                  <span className="text-xs font-semibold text-cyan-300">
+                    +{item.xpChange}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </section>
+    </>
+  );
 }
 
-function PracticeWorkspace({ subject, topic, difficulty, questionType, question, evaluation, selectedAnswer, shortAnswer, hintOpen, followUpOpen, followUp, followUpReply, generatePending, submitPending, followUpPending, onBack, onTopic, onDifficulty, onQuestionType, onGenerate, onSelectAnswer, onShortAnswer, onHint, onSubmit, onOpenFollowUp, onFollowUp, onAskFollowUp }: { subject: StemSubject; topic: string; difficulty: DifficultyLevel; questionType: QuestionType; question: SafeQuestion | null; evaluation: Evaluation | null; selectedAnswer: string; shortAnswer: string; hintOpen: boolean; followUpOpen: boolean; followUp: string; followUpReply: string; generatePending: boolean; submitPending: boolean; followUpPending: boolean; onBack: () => void; onTopic: (value: string) => void; onDifficulty: (value: DifficultyLevel) => void; onQuestionType: (value: QuestionType) => void; onGenerate: () => void; onSelectAnswer: (value: string) => void; onShortAnswer: (value: string) => void; onHint: () => void; onSubmit: () => void; onOpenFollowUp: () => void; onFollowUp: (value: string) => void; onAskFollowUp: () => void }) {
+function PracticeWorkspace({
+  subject,
+  topic,
+  difficulty,
+  questionType,
+  question,
+  evaluation,
+  selectedAnswer,
+  shortAnswer,
+  hintOpen,
+  followUpOpen,
+  followUp,
+  followUpReply,
+  generatePending,
+  submitPending,
+  followUpPending,
+  onBack,
+  onTopic,
+  onDifficulty,
+  onQuestionType,
+  onGenerate,
+  onSelectAnswer,
+  onShortAnswer,
+  onHint,
+  onSubmit,
+  onOpenFollowUp,
+  onFollowUp,
+  onAskFollowUp,
+}: {
+  subject: StemSubject;
+  topic: string;
+  difficulty: DifficultyLevel;
+  questionType: QuestionType;
+  question: SafeQuestion | null;
+  evaluation: Evaluation | null;
+  selectedAnswer: string;
+  shortAnswer: string;
+  hintOpen: boolean;
+  followUpOpen: boolean;
+  followUp: string;
+  followUpReply: string;
+  generatePending: boolean;
+  submitPending: boolean;
+  followUpPending: boolean;
+  onBack: () => void;
+  onTopic: (value: string) => void;
+  onDifficulty: (value: DifficultyLevel) => void;
+  onQuestionType: (value: QuestionType) => void;
+  onGenerate: () => void;
+  onSelectAnswer: (value: string) => void;
+  onShortAnswer: (value: string) => void;
+  onHint: () => void;
+  onSubmit: () => void;
+  onOpenFollowUp: () => void;
+  onFollowUp: (value: string) => void;
+  onAskFollowUp: () => void;
+}) {
   const config = SUBJECT_CONFIG[subject];
   const Icon = subjectIcons[subject];
   const theme = subjectTheme[subject];
-  const displayCorrect = question && evaluation ? question.choices.find(choice => choice.id === evaluation.correctAnswer)?.text ?? evaluation.correctAnswer : "";
-  return <section id="practice-settings"><button onClick={onBack} className="mb-6 flex items-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-white"><ChevronLeft className="h-4 w-4" />Back to workspace</button><div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]"><div className="workspace-card p-5 sm:p-7"><div className="flex flex-col gap-5 border-b border-white/[.08] pb-6 sm:flex-row sm:items-start sm:justify-between"><div><div className={cn("inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-bold", theme.soft, theme.accent)}><Icon className="h-3.5 w-3.5" />{config.label.toUpperCase()}</div><h1 className="mt-4 text-2xl font-extrabold tracking-[-.04em] text-white">{question ? question.title : "Set your challenge"}</h1><p className="mt-2 text-sm leading-6 text-slate-400">Select the focus and format before generating a question.</p></div><Button onClick={onGenerate} disabled={generatePending} className="rounded-lg bg-cyan-300 font-bold text-slate-950 hover:bg-cyan-200">{generatePending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}{question ? "New question" : "Generate question"}</Button></div><div className="mt-6 grid gap-3 sm:grid-cols-3"><SelectField label="Topic" value={topic} options={config.topics} onChange={onTopic} /><SelectField label="Difficulty" value={difficulty} options={DIFFICULTY_LEVELS} onChange={value => onDifficulty(value as DifficultyLevel)} /><SelectField label="Format" value={questionType} options={QUESTION_TYPES.map(value => ({ value, label: questionTypeLabels[value] }))} onChange={value => onQuestionType(value as QuestionType)} /></div>{question ? <div className="mt-8"><div className="flex flex-wrap gap-2"><Tag>{question.topic}</Tag><Tag>{questionTypeLabels[question.questionType]}</Tag></div><p className="mt-5 text-lg font-semibold leading-8 text-slate-100 sm:text-xl">{question.prompt}</p>{question.questionType === "short_answer" ? <Textarea value={shortAnswer} onChange={event => onShortAnswer(event.target.value)} disabled={Boolean(evaluation)} placeholder="Write your answer…" className="mt-6 min-h-28 rounded-lg border-white/10 bg-[#080b12] p-4 text-slate-100 placeholder:text-slate-600" /> : <div className="mt-6 grid gap-2.5">{question.choices.map(choice => <button key={choice.id} disabled={Boolean(evaluation)} onClick={() => onSelectAnswer(choice.id)} className={cn("flex items-start gap-3 rounded-lg border p-4 text-left transition-colors", selectedAnswer === choice.id && !evaluation ? "border-cyan-300/50 bg-cyan-300/[.08]" : "border-white/[.09] bg-white/[.02] hover:bg-white/[.05]", evaluation && choice.id === evaluation.correctAnswer && "border-emerald-300/40 bg-emerald-300/[.08]", evaluation && choice.id === selectedAnswer && choice.id !== evaluation.correctAnswer && "border-rose-300/35 bg-rose-300/[.07]") }><span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-white/[.08] text-xs font-bold text-slate-300">{choice.id}</span><span className="pt-0.5 text-sm leading-6 text-slate-200">{choice.text}</span></button>)}</div>}{!evaluation ? <div className="mt-6 flex flex-col gap-3 border-t border-white/[.08] pt-5 sm:flex-row sm:items-center sm:justify-between"><button onClick={onHint} className="flex items-center gap-2 text-sm font-semibold text-amber-200 hover:text-amber-100"><Lightbulb className="h-4 w-4" />{hintOpen ? "Hide hint" : "Show hint"}</button><Button onClick={onSubmit} disabled={submitPending} className="rounded-lg bg-cyan-300 font-bold text-slate-950 hover:bg-cyan-200">{submitPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}Submit answer</Button></div> : null}{hintOpen && !evaluation && <div className="mt-4 rounded-lg border border-amber-300/15 bg-amber-300/[.06] p-3 text-sm leading-6 text-amber-100">{question.hint}</div>}{evaluation && <div className={cn("mt-7 rounded-xl border p-5", evaluation.isCorrect ? "border-emerald-300/25 bg-emerald-300/[.07]" : "border-amber-300/25 bg-amber-300/[.07]")}><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-semibold text-white">{evaluation.isCorrect ? "Correct — strong work." : "Not quite — let’s clarify it."}</p><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">{evaluation.feedback}</p></div><span className="rounded-md bg-white/[.08] px-2.5 py-1.5 text-xs font-bold text-cyan-200">+{evaluation.reward.earnedXp} XP</span></div><div className="mt-4 border-t border-white/[.09] pt-4"><p className="text-xs font-semibold uppercase tracking-[.12em] text-slate-500">Explanation</p><p className="mt-2 text-sm leading-6 text-slate-200">{evaluation.explanation}</p><p className="mt-3 text-sm text-slate-400">Correct answer: <span className="font-semibold text-cyan-200">{displayCorrect}</span></p></div><div className="mt-5 flex flex-wrap gap-3"><Button onClick={onGenerate} disabled={generatePending} className="rounded-lg bg-white font-bold text-slate-950 hover:bg-slate-200"><ChevronRight className="mr-1 h-4 w-4" />Next question</Button><Button onClick={onOpenFollowUp} variant="outline" className="rounded-lg border-white/15 bg-transparent text-slate-100 hover:bg-white/[.08] hover:text-white"><MessageCircle className="mr-2 h-4 w-4" />Ask about this question</Button></div>{followUpOpen && <div className="mt-5 rounded-lg border border-white/[.1] bg-[#0a0d14]/70 p-4"><label className="text-sm font-semibold text-slate-200">Follow-up question</label><p className="mt-1 text-xs leading-5 text-slate-500">The tutor sees this question, your answer, and the grading explanation.</p><Textarea value={followUp} onChange={event => onFollowUp(event.target.value)} placeholder="What would you like clarified?" className="mt-3 min-h-22 rounded-lg border-white/10 bg-[#080b12] text-slate-100 placeholder:text-slate-600" /><div className="mt-3 flex justify-end"><Button onClick={onAskFollowUp} disabled={followUpPending || !followUp.trim()} className="rounded-lg bg-cyan-300 text-slate-950 hover:bg-cyan-200">{followUpPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Ask tutor</Button></div>{followUpReply && <div className="mt-4 border-t border-white/[.08] pt-4"><p className="text-xs font-semibold uppercase tracking-[.12em] text-cyan-300">Tutor response</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-200">{followUpReply}</p></div>}</div>}</div>}</div> : <div className="mt-8 rounded-lg border border-dashed border-white/[.13] p-8 text-center"><CircleHelp className="mx-auto h-7 w-7 text-slate-600" /><p className="mt-3 font-semibold text-slate-300">Your practice space is ready.</p><p className="mt-1 text-sm text-slate-500">Generate a question when your settings look right.</p></div>}</div><aside className="space-y-5"><div className="workspace-card p-5"><p className="text-xs font-semibold uppercase tracking-[.12em] text-slate-500">Current setup</p><div className="mt-5 space-y-4"><InfoLine label="Subject" value={config.label} /><InfoLine label="Topic" value={topic} /><InfoLine label="Difficulty" value={difficulty} /><InfoLine label="Format" value={questionTypeLabels[questionType]} /></div></div><div className="workspace-card p-5"><div className="flex items-center gap-2"><Bot className="h-4 w-4 text-cyan-300" /><p className="text-sm font-semibold text-white">Need more help?</p></div><p className="mt-2 text-sm leading-6 text-slate-400">Use the AI mentor for broader study planning, or ask a focused follow-up after you submit this question.</p></div></aside></div></section>;
+  const displayCorrect =
+    question && evaluation
+      ? (question.choices.find(choice => choice.id === evaluation.correctAnswer)
+          ?.text ?? evaluation.correctAnswer)
+      : "";
+  return (
+    <section id="practice-settings">
+      <button
+        onClick={onBack}
+        className="mb-6 flex items-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-white"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Back to workspace
+      </button>
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="workspace-card p-5 sm:p-7">
+          <div className="flex flex-col gap-5 border-b border-white/[.08] pb-6 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-bold",
+                  theme.soft,
+                  theme.accent
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {config.label.toUpperCase()}
+              </div>
+              <h1 className="mt-4 text-2xl font-extrabold tracking-[-.04em] text-white">
+                {question ? question.title : "Set your challenge"}
+              </h1>
+            </div>
+            <Button
+              onClick={onGenerate}
+              disabled={generatePending}
+              className="rounded-lg bg-cyan-300 font-bold text-slate-950 hover:bg-cyan-200"
+            >
+              {generatePending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="mr-2 h-4 w-4" />
+              )}
+              {question ? "New question" : "Generate question"}
+            </Button>
+          </div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <SelectField
+              label="Topic"
+              value={topic}
+              options={config.topics}
+              onChange={onTopic}
+            />
+            <SelectField
+              label="Difficulty"
+              value={difficulty}
+              options={DIFFICULTY_LEVELS}
+              onChange={value => onDifficulty(value as DifficultyLevel)}
+            />
+            <SelectField
+              label="Format"
+              value={questionType}
+              options={QUESTION_TYPES.map(value => ({
+                value,
+                label: questionTypeLabels[value],
+              }))}
+              onChange={value => onQuestionType(value as QuestionType)}
+            />
+          </div>
+          {question ? (
+            <div className="mt-8">
+              <div className="flex flex-wrap gap-2">
+                <Tag>{question.topic}</Tag>
+                <Tag>{questionTypeLabels[question.questionType]}</Tag>
+              </div>
+              <p className="mt-5 text-lg font-semibold leading-8 text-slate-100 sm:text-xl">
+                {question.prompt}
+              </p>
+              {question.questionType === "short_answer" ? (
+                <Textarea
+                  value={shortAnswer}
+                  onChange={event => onShortAnswer(event.target.value)}
+                  disabled={Boolean(evaluation)}
+                  placeholder="Write your answer…"
+                  className="mt-6 min-h-28 rounded-lg border-white/10 bg-[#080b12] p-4 text-slate-100 placeholder:text-slate-600"
+                />
+              ) : (
+                <div className="mt-6 grid gap-2.5">
+                  {question.choices.map(choice => (
+                    <button
+                      key={choice.id}
+                      disabled={Boolean(evaluation)}
+                      onClick={() => onSelectAnswer(choice.id)}
+                      className={cn(
+                        "flex items-start gap-3 rounded-lg border p-4 text-left transition-colors",
+                        selectedAnswer === choice.id && !evaluation
+                          ? "border-cyan-300/50 bg-cyan-300/[.08]"
+                          : "border-white/[.09] bg-white/[.02] hover:bg-white/[.05]",
+                        evaluation &&
+                          choice.id === evaluation.correctAnswer &&
+                          "border-emerald-300/40 bg-emerald-300/[.08]",
+                        evaluation &&
+                          choice.id === selectedAnswer &&
+                          choice.id !== evaluation.correctAnswer &&
+                          "border-rose-300/35 bg-rose-300/[.07]"
+                      )}
+                    >
+                      <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-white/[.08] text-xs font-bold text-slate-300">
+                        {choice.id}
+                      </span>
+                      <span className="pt-0.5 text-sm leading-6 text-slate-200">
+                        {choice.text}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {!evaluation ? (
+                <div className="mt-6 flex flex-col gap-3 border-t border-white/[.08] pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  <button
+                    onClick={onHint}
+                    className="flex items-center gap-2 text-sm font-semibold text-amber-200 hover:text-amber-100"
+                  >
+                    <Lightbulb className="h-4 w-4" />
+                    {hintOpen ? "Hide hint" : "Show hint"}
+                  </button>
+                  <Button
+                    onClick={onSubmit}
+                    disabled={submitPending}
+                    className="rounded-lg bg-cyan-300 font-bold text-slate-950 hover:bg-cyan-200"
+                  >
+                    {submitPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                    )}
+                    Submit answer
+                  </Button>
+                </div>
+              ) : null}
+              {hintOpen && !evaluation && (
+                <div className="mt-4 rounded-lg border border-amber-300/15 bg-amber-300/[.06] p-3 text-sm leading-6 text-amber-100">
+                  {question.hint}
+                </div>
+              )}
+              {evaluation && (
+                <div
+                  className={cn(
+                    "mt-7 rounded-xl border p-5",
+                    evaluation.isCorrect
+                      ? "border-emerald-300/25 bg-emerald-300/[.07]"
+                      : "border-amber-300/25 bg-amber-300/[.07]"
+                  )}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-white">
+                        {evaluation.isCorrect
+                          ? "Correct — strong work."
+                          : "Not quite — let’s clarify it."}
+                      </p>
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
+                        {evaluation.feedback}
+                      </p>
+                    </div>
+                    <span className="rounded-md bg-white/[.08] px-2.5 py-1.5 text-xs font-bold text-cyan-200">
+                      +{evaluation.reward.earnedXp} XP
+                    </span>
+                  </div>
+                  <div className="mt-4 border-t border-white/[.09] pt-4">
+                    <p className="text-xs font-semibold uppercase tracking-[.12em] text-slate-500">
+                      Explanation
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-200">
+                      {evaluation.explanation}
+                    </p>
+                    <p className="mt-3 text-sm text-slate-400">
+                      Correct answer:{" "}
+                      <span className="font-semibold text-cyan-200">
+                        {displayCorrect}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <Button
+                      onClick={onGenerate}
+                      disabled={generatePending}
+                      className="rounded-lg bg-white font-bold text-slate-950 hover:bg-slate-200"
+                    >
+                      <ChevronRight className="mr-1 h-4 w-4" />
+                      Next question
+                    </Button>
+                    <Button
+                      onClick={onOpenFollowUp}
+                      variant="outline"
+                      className="rounded-lg border-white/15 bg-transparent text-slate-100 hover:bg-white/[.08] hover:text-white"
+                    >
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      Ask about this question
+                    </Button>
+                  </div>
+                  {followUpOpen && (
+                    <div className="mt-5 rounded-lg border border-white/[.1] bg-[#0a0d14]/70 p-4">
+                      <label className="text-sm font-semibold text-slate-200">
+                        Follow-up question
+                      </label>
+                      <Textarea
+                        value={followUp}
+                        onChange={event => onFollowUp(event.target.value)}
+                        placeholder="What would you like clarified?"
+                        className="mt-3 min-h-22 rounded-lg border-white/10 bg-[#080b12] text-slate-100 placeholder:text-slate-600"
+                      />
+                      <div className="mt-3 flex justify-end">
+                        <Button
+                          onClick={onAskFollowUp}
+                          disabled={followUpPending || !followUp.trim()}
+                          className="rounded-lg bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+                        >
+                          {followUpPending && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
+                          Ask tutor
+                        </Button>
+                      </div>
+                      {followUpReply && (
+                        <div className="mt-4 border-t border-white/[.08] pt-4">
+                          <p className="text-xs font-semibold uppercase tracking-[.12em] text-cyan-300">
+                            Tutor response
+                          </p>
+                          <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-200">
+                            {followUpReply}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : null}
+        </div>
+        <aside className="space-y-5">
+          <div className="workspace-card p-5">
+            <div className="flex items-center gap-2">
+              <Bot className="h-4 w-4 text-cyan-300" />
+              <p className="text-sm font-semibold text-white">
+                Need more help?
+              </p>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-slate-400">
+              Use the AI mentor for broader study planning, or ask a focused
+              follow-up after you submit this question.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  );
 }
 
-function SideAction({ label, icon: Icon, active, onClick }: { label: string; icon: LucideIcon; active?: boolean; onClick: () => void }) { return <button onClick={onClick} className={cn("flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors", active ? "bg-white/[.08] text-white" : "text-slate-400 hover:bg-white/[.05] hover:text-white")}><Icon className="h-4 w-4" />{label}</button>; }
-function MiniStat({ label, value }: { label: string; value: string }) { return <div><p className="text-lg font-bold text-white">{value}</p><p className="mt-1 text-[10px] uppercase tracking-[.1em] text-slate-500">{label}</p></div>; }
-function SectionHead({ label, title, detail }: { label: string; title: string; detail?: string }) { return <div><p className="font-mono-quest text-[10px] tracking-[.15em] text-slate-500">{label}</p><div className="mt-1 flex flex-wrap items-end justify-between gap-2"><h2 className="text-xl font-extrabold tracking-[-.035em] text-white">{title}</h2>{detail && <p className="text-xs text-slate-500">{detail}</p>}</div></div>; }
-function SubjectCard({ subject, progress, onLaunch }: { subject: StemSubject; progress?: { questionsAttempted: number; questionsCorrect: number }; onLaunch: (subject: StemSubject) => void }) { const config = SUBJECT_CONFIG[subject]; const Icon = subjectIcons[subject]; const theme = subjectTheme[subject]; const percent = progress?.questionsAttempted ? Math.round((progress.questionsCorrect / progress.questionsAttempted) * 100) : 0; return <button onClick={() => onLaunch(subject)} className={cn("subject-row subject-peel group p-5 text-left", theme.ring)}><span aria-hidden="true" className="subject-peel-corner" /><div className="flex items-start justify-between"><div className={cn("grid h-10 w-10 place-items-center rounded-lg", theme.soft, theme.accent)}><Icon className="h-5 w-5" /></div><ChevronRight className="h-4 w-4 text-slate-600 transition-transform group-hover:translate-x-0.5 group-hover:text-white" /></div><h3 className="mt-6 text-base font-bold text-white">{config.label}</h3><p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">{config.topics.slice(0, 2).join(" · ")}</p><div className="mt-5 flex items-center justify-between text-xs"><span className="text-slate-500">{progress?.questionsAttempted ?? 0} attempts</span><span className={theme.accent}>{percent}%</span></div></button>; }
-function SelectField({ label, value, options, onChange }: { label: string; value: string; options: readonly string[] | { value: string; label: string }[]; onChange: (value: string) => void }) { return <label><span className="text-xs font-semibold text-slate-400">{label}</span><select value={value} onChange={event => onChange(event.target.value)} className="mt-2 h-11 w-full rounded-lg border border-white/10 bg-[#080b12] px-3 text-sm text-slate-100 outline-none focus:border-cyan-300/60">{options.map(item => typeof item === "string" ? <option key={item} value={item}>{item}</option> : <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>; }
-function Tag({ children }: { children: string }) { return <span className="rounded-md bg-white/[.06] px-2 py-1 text-[11px] font-semibold text-slate-400">{children}</span>; }
-function InfoLine({ label, value }: { label: string; value: string }) { return <div className="border-b border-white/[.07] pb-3 last:border-0 last:pb-0"><p className="text-[10px] font-semibold uppercase tracking-[.12em] text-slate-500">{label}</p><p className="mt-1.5 text-sm text-slate-200">{value}</p></div>; }
-function WeeklyCadence({ activity }: { activity: LocalLearner["activity"] }) { const data = Array.from({ length: 7 }, (_, index) => { const date = new Date(); date.setHours(0, 0, 0, 0); date.setDate(date.getDate() - (6 - index)); const count = activity.filter(item => { const recorded = new Date(item.createdAt); recorded.setHours(0, 0, 0, 0); return recorded.getTime() === date.getTime(); }).length; return { day: new Intl.DateTimeFormat("en", { weekday: "short" }).format(date), count }; }); return <section className="mt-14 border-t border-orange-100/15 pt-8"><SectionHead label="WEEKLY CADENCE" title="Your practice rhythm" detail="Completed questions appear on the day you submit them." /><div className="mt-7 h-56 w-full"><ResponsiveContainer width="100%" height="100%"><LineChart data={data} margin={{ top: 12, right: 14, left: -22, bottom: 0 }}><CartesianGrid vertical={false} stroke="rgba(255,225,190,.14)" /><XAxis dataKey="day" stroke="rgba(255,225,190,.45)" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} /><YAxis allowDecimals={false} stroke="rgba(255,225,190,.45)" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} /><Tooltip contentStyle={{ background: "#160c06", border: "1px solid rgba(255,194,125,.35)", color: "#fff7ec" }} cursor={{ stroke: "rgba(243,139,43,.45)" }} /><Line type="monotone" dataKey="count" stroke="#f2973d" strokeWidth={3} dot={{ r: 3, fill: "#f2973d", strokeWidth: 0 }} activeDot={{ r: 5 }} /></LineChart></ResponsiveContainer></div></section>; }
-function createPreviewLearner() { const learner = loadLocalLearner(); return learner.name ? learner : createLocalLearner("Preview learner"); }
+function SideAction({
+  label,
+  icon: Icon,
+  active,
+  onClick,
+}: {
+  label: string;
+  icon: LucideIcon;
+  active?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+        active
+          ? "bg-white/[.08] text-white"
+          : "text-slate-400 hover:bg-white/[.05] hover:text-white"
+      )}
+    >
+      <Icon className="h-4 w-4" />
+      {label}
+    </button>
+  );
+}
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-lg font-bold text-white">{value}</p>
+      <p className="mt-1 text-[10px] uppercase tracking-[.1em] text-slate-500">
+        {label}
+      </p>
+    </div>
+  );
+}
+function SectionHead({ title }: { title: string }) {
+  return (
+    <div>
+      <div>
+        <h2 className="text-xl font-extrabold tracking-[-.035em] text-white">
+          {title}
+        </h2>
+      </div>
+    </div>
+  );
+}
+function SubjectCard({
+  subject,
+  progress,
+  onLaunch,
+}: {
+  subject: StemSubject;
+  progress?: { questionsAttempted: number; questionsCorrect: number };
+  onLaunch: (subject: StemSubject) => void;
+}) {
+  const config = SUBJECT_CONFIG[subject];
+  const Icon = subjectIcons[subject];
+  const theme = subjectTheme[subject];
+  const percent = progress?.questionsAttempted
+    ? Math.round(
+        (progress.questionsCorrect / progress.questionsAttempted) * 100
+      )
+    : 0;
+  return (
+    <button
+      onClick={() => onLaunch(subject)}
+      className={cn("subject-row subject-peel group p-5 text-left", theme.ring)}
+    >
+      <span aria-hidden="true" className="subject-peel-corner" />
+      <div className="flex items-start justify-between">
+        <div
+          className={cn(
+            "grid h-10 w-10 place-items-center rounded-lg",
+            theme.soft,
+            theme.accent
+          )}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
+        <ChevronRight className="h-4 w-4 text-slate-600 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
+      </div>
+      <h3 className="mt-6 text-base font-bold text-white">{config.label}</h3>
+      <p className="mt-2 min-h-10 text-xs leading-5 text-slate-500">
+        {config.topics.slice(0, 2).join(" · ")}
+      </p>
+      <div className="mt-5 flex items-center justify-between text-xs">
+        <span className="text-slate-500">
+          {progress?.questionsAttempted ?? 0} attempts
+        </span>
+        <span className={theme.accent}>{percent}%</span>
+      </div>
+    </button>
+  );
+}
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: readonly string[] | { value: string; label: string }[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label>
+      <span className="text-xs font-semibold text-slate-400">{label}</span>
+      <select
+        value={value}
+        onChange={event => onChange(event.target.value)}
+        className="mt-2 h-11 w-full rounded-lg border border-white/10 bg-[#080b12] px-3 text-sm text-slate-100 outline-none focus:border-cyan-300/60"
+      >
+        {options.map(item =>
+          typeof item === "string" ? (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ) : (
+            <option key={item.value} value={item.value}>
+              {item.label}
+            </option>
+          )
+        )}
+      </select>
+    </label>
+  );
+}
+function Tag({ children }: { children: string }) {
+  return (
+    <span className="rounded-md bg-white/[.06] px-2 py-1 text-[11px] font-semibold text-slate-400">
+      {children}
+    </span>
+  );
+}
+function WeeklyCadence({ activity }: { activity: LocalLearner["activity"] }) {
+  const data = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - (6 - index));
+    const count = activity.filter(item => {
+      const recorded = new Date(item.createdAt);
+      recorded.setHours(0, 0, 0, 0);
+      return recorded.getTime() === date.getTime();
+    }).length;
+    return {
+      day: new Intl.DateTimeFormat("en", { weekday: "short" }).format(date),
+      count,
+    };
+  });
+  return (
+    <section className="mt-14 border-t border-orange-100/15 pt-8">
+      <SectionHead title="Your practice rhythm" />
+      <div className="mt-7 h-56 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={data}
+            margin={{ top: 12, right: 14, left: -22, bottom: 0 }}
+          >
+            <CartesianGrid vertical={false} stroke="rgba(255,225,190,.14)" />
+            <XAxis
+              dataKey="day"
+              stroke="rgba(255,225,190,.45)"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fontSize: 11 }}
+            />
+            <YAxis
+              allowDecimals={false}
+              stroke="rgba(255,225,190,.45)"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fontSize: 11 }}
+            />
+            <Tooltip
+              contentStyle={{
+                background: "#160c06",
+                border: "1px solid rgba(255,194,125,.35)",
+                color: "#fff7ec",
+              }}
+              cursor={{ stroke: "rgba(243,139,43,.45)" }}
+            />
+            <Line
+              type="monotone"
+              dataKey="count"
+              stroke="#f2973d"
+              strokeWidth={3}
+              dot={{ r: 3, fill: "#f2973d", strokeWidth: 0 }}
+              activeDot={{ r: 5 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </section>
+  );
+}
+function createPreviewLearner() {
+  const learner = loadLocalLearner();
+  return learner.name ? learner : createLocalLearner("Preview learner");
+}

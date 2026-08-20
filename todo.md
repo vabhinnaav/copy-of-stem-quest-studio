@@ -69,3 +69,6 @@
 - [x] Remove the Current Setup block from the STEM practice workspace to create a more relaxed layout.
 - [x] Preserve the question settings, tutor help panel, quiz behavior, and responsive practice workspace layout.
 - [x] Verify the simplified practice workspace visually and through the regression suite.
+
+- [x] Remove nonessential secondary helper text and refine the font treatment and contrast of supporting copy across the learning interface.
+- [x] Verify the streamlined typography on desktop and mobile, with regression coverage for affected interface copy.
