@@ -1,0 +1,71 @@
+# Project TODO
+
+- [x] Define the STEM quiz domain model for questions, attempts, progress, rewards, and recent activity.
+- [x] Add persistent database tables and schema migrations tied to Manus OAuth users.
+- [x] Implement a server-only Gemini question generation and answer-evaluation service with structured validation.
+- [x] Add secure request contracts for autonomous questions by STEM subject, topic, difficulty, and question type.
+- [x] Build reward calculations for XP, streaks, levels, badges, per-subject scores, and improvement metrics.
+- [x] Implement Manus OAuth-aware dashboard queries, question history, and analytics.
+- [x] Create a dark, mobile-first landing experience and authenticated dashboard home screen.
+- [x] Create responsive Science, Technology, Engineering, and Mathematics workspaces with topic and difficulty selection.
+- [x] Implement the autonomous quiz flow, answer submission, immediate feedback, explanations, and correct-answer reveal.
+- [x] Implement performance analytics, recent activity, and per-subject visualizations.
+- [x] Add accessible keyboard interaction, loading states, error states, and reduced-motion support.
+- [x] Add unit tests for validation, reward calculations, and core server procedures.
+- [x] Verify desktop and mobile renderings and run type checks and tests.
+- [x] Prepare source files and secure deployment configuration guidance.
+- [x] Replace Manus OAuth entry and account-dependent UI with a no-login learner-name onboarding flow.
+- [x] Move learner identity, rewards, attempts, activity, and analytics persistence to browser local storage.
+- [x] Update autonomous Gemini question generation and evaluation endpoints to work without authentication or database records.
+- [x] Preserve all STEM arenas, question settings, feedback, rewards, analytics, and responsive design in the local-only mode.
+- [x] Add a local profile reset option and document device-only persistence limitations.
+- [x] Test no-login onboarding, local progress continuity, device-only reset, and mobile/desktop layouts.
+- [x] Change sector entry so challenge settings are selected before a question is generated.
+- [x] Clear the active question, selected answer, feedback, and hint when returning to mission control or switching STEM sectors.
+- [x] Verify settings-first entry and fresh-question behavior across sector navigation on desktop and mobile.
+- [x] Add a provider-neutral, browser-session AI connection configuration with provider, API key, endpoint, and model options.
+- [x] Route question generation, answer evaluation, and mentor chat through the active user-supplied provider connection without persisting the key.
+- [x] Add a mentor chat interface that receives a concise context derived from local performance, streaks, activity, and subject progress.
+- [x] Preserve all existing dashboard, arena, local progress, and navigation behavior outside the new AI connection and mentor chat controls.
+- [x] Test supported provider adapters, session-only key handling, performance-context construction, and responsive chat behavior.
+- [x] Replace the single local learner record with a normalized on-device profile collection keyed by learner name.
+- [x] Restore prior progress, activity, XP, streaks, and per-subject analytics when a previously used learner name is re-entered.
+- [x] Preserve deliberate profile reset behavior while making learner switching explicit and safe.
+- [x] Add Netlify configuration and serverless AI endpoint packaging without changing the current user experience.
+- [x] Add free Netlify deployment instructions, environment-variable guidance, and static-file build output documentation.
+- [x] Test named-profile restoration, reset, switching, and Netlify production build artifacts.
+- [x] Separate the visible learner-switch action from an explicit delete-current-profile action.
+- [x] Add regression coverage for preserved named-profile switching and deliberate deletion of only the active learner.
+- [x] Verify the corrected profile controls and labels in the browser before delivery.
+- [x] Replace the visually dense dashboard presentation with a clean professional learning workspace inspired by the supplied reference.
+- [x] Simplify information hierarchy, navigation, cards, controls, and visual treatment while preserving all existing learning features.
+- [x] Remove non-functional or placeholder controls from the visible interface.
+- [x] Add an after-grading follow-up question action that sends the graded question, learner answer, evaluation, and explanation as AI context.
+- [x] Preserve user-provided AI provider session settings and route follow-up answers through the active provider connection.
+- [x] Add tests for follow-up context and verify refined desktop/mobile views and core flows.
+- [x] Restore the weekly learning cadence or equivalent improvement-over-time view within the refined workspace.
+- [x] Add regression coverage for the public follow-up procedure and active-provider follow-up routing after grading.
+- [x] Verify the visible post-answer follow-up panel on desktop and mobile before delivery.
+- [x] Replace hard card-grid boundaries with a more continuous section flow and selective content surfaces.
+- [x] Soften borders, radius, shadows, and spacing to remove the boxed dashboard feel while preserving hierarchy.
+- [x] Refine the subject library, progress, activity, practice, and feedback layouts without changing any feature behavior.
+- [x] Verify fluid desktop and mobile visuals alongside existing quiz, profile, provider, mentor, and follow-up flows.
+- [x] Visually verify the profile manager, AI provider settings, mentor chat, and post-answer follow-up panel after the fluid layout refinement.
+- [x] Verify the updated layout preserves quiz submission, contextual follow-up, mentor opening, and learner profile controls end to end.
+- [x] Add an equivalent automated interaction-flow regression covering local profile, graded answer, contextual follow-up, and mentor/provider behavior after the fluid layout update.
+- [x] Restore the top-right Profile action and ensure it opens the existing device-local profile manager reliably.
+- [x] Add an animated orange-and-black scrollable landing page with STEMQUEST wordmark, Start Learning call to action, About Us, and email contact details.
+- [x] Add a scroll or Start Learning transition into the learner setup page with animated background, typewriter-style STEMQUEST treatment, API connection entry, learner-name entry, and search/start control.
+- [x] Add a slide transition from setup into the feature-complete learning workspace while preserving local profiles, provider settings, mentor chat, questions, feedback, follow-ups, history, and analytics.
+- [x] Restyle the learning workspace in the supplied orange-and-white visual language, including four STEM practice-area cards and a weekly cadence line chart without neon or rainbow effects.
+- [x] Remove obsolete controls and verify every visible control has an active behavior in the redesigned journey.
+- [x] Test profile access, page transitions, local profile restoration, quiz answer/follow-up flow, mentor/provider flow, and responsive desktop/mobile layouts.
+- [x] Add targeted regression coverage for the landing-to-setup-to-workspace transition and existing learner-profile restoration.
+- [x] Add a complete visible-control audit for landing, setup, workspace, profile manager, and mentor/provider settings overlays.
+- [x] Verify provider-settings access from setup, mentor/profile overlays, and graded-question follow-ups from the redesigned journey.
+- [x] Add a lightweight orange-palette peel hover treatment to the four STEM practice-area tiles only.
+- [x] Preserve tile accessibility, click behavior, mobile behavior, and all existing learning features.
+- [x] Verify the tile peel interaction at desktop and mobile sizes without visual regressions.
+- [x] Remove the Current Setup block from the STEM practice workspace to create a more relaxed layout.
+- [x] Preserve the question settings, tutor help panel, quiz behavior, and responsive practice workspace layout.
+- [x] Verify the simplified practice workspace visually and through the regression suite.
