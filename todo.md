@@ -137,3 +137,5 @@
 - [x] Fix the reported Back to arcade regression that returns to a blank tunnel state instead of the revealed fanned deck.
 
 - [x] Remove the Back to arcade visual transition so games return directly to the revealed deck.
+
+- [x] Replace animated STEMARCADE navigation with direct card-to-game and game-to-selection-menu routing only.

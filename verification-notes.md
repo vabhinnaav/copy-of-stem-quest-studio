@@ -23,3 +23,4 @@
 - Regression reproduction: after Physics → Back to arcade, the URL is `/stemarcade?deckPreview=1` and deck elements are mounted, but the tunnel’s orange center remains visibly over blank card bounds rather than the rendered fanned deck.
 - Targeted live validation after the fix: Chemistry → Back to arcade returned to `/stemarcade?deckPreview=1` with the deck revealed, all card faces rendered, and no mounted tunnel layer to obscure the deck.
 - Back to arcade now applies the direct-return deck state without the STEMARCADE page-arrival animation; the focused return-flow regression passes.
+- Direct-navigation verification: the Chemistry game’s Back to arcade control is now a native link to `/stemarcade?deckPreview=1`; a live click loaded the visible selection menu directly with the fanned cards and no tunnel or transition overlay.

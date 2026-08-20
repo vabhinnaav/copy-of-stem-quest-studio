@@ -30,9 +30,8 @@ const subjectToSlug: Record<string, keyof typeof SUBJECT_GAMES> = {
 };
 
 export default function Stemarcade() {
-  const [location, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
   const [returning, setReturning] = useState(false);
-  const [enteringGame, setEnteringGame] = useState(false);
   const [deckOpen, setDeckOpen] = useState(() =>
     new URLSearchParams(window.location.search).has("deckPreview")
   );
@@ -56,14 +55,8 @@ export default function Stemarcade() {
 
   const openSubjectGame = (subject: string) => {
     const slug = subjectToSlug[subject];
-    if (!slug || enteringGame) return;
-    setEnteringGame(true);
-    window.setTimeout(() => setLocation(`/stemarcade/${slug}`), 340);
-  };
-
-  const returnToDeck = () => {
-    setDeckOpen(true);
-    setLocation("/stemarcade?deckPreview=1");
+    if (!slug) return;
+    setLocation(`/stemarcade/${slug}`);
   };
 
   if (game) {
@@ -73,14 +66,13 @@ export default function Stemarcade() {
           <div className="stemarcade-return-transition" aria-hidden="true" />
         )}
         <nav className="stemarcade-game-nav" aria-label="Game navigation">
-          <button
+          <a
             className="stemarcade-game-control stemarcade-game-control-primary"
-            type="button"
-            onClick={returnToDeck}
+            href="/stemarcade?deckPreview=1"
           >
             <span aria-hidden="true">←</span>
             <span>Back to arcade</span>
-          </button>
+          </a>
           <button
             className="stemarcade-game-control"
             type="button"
@@ -108,9 +100,6 @@ export default function Stemarcade() {
     >
       {returning && (
         <div className="stemarcade-return-transition" aria-hidden="true" />
-      )}
-      {enteringGame && (
-        <div className="stemarcade-game-transition" aria-hidden="true" />
       )}
       <button
         className="stemarcade-return"

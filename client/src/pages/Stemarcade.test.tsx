@@ -66,17 +66,14 @@ describe("STEMARCADE page", () => {
     );
   });
 
-  it("transitions a selected subject from the deck into its supplied game frame", () => {
-    vi.useFakeTimers();
+  it("opens a selected subject game immediately without a transition overlay", () => {
     window.history.pushState({}, "", "/stemarcade");
     render(<Stemarcade />);
 
     fireEvent.click(screen.getByTestId("gallery-tunnel"));
     fireEvent.click(screen.getByLabelText("Physics"));
-    expect(document.querySelector(".stemarcade-game-transition")).toBeTruthy();
-
-    vi.advanceTimersByTime(340);
     expect(window.location.pathname).toBe("/stemarcade/physics");
+    expect(document.querySelector(".stemarcade-game-transition")).toBeNull();
   });
 
   it("renders the corresponding user-supplied game in an isolated frame", () => {
@@ -88,7 +85,7 @@ describe("STEMARCADE page", () => {
       "/manus-storage/coding-challenge-arena_fc7cdf74.html"
     );
     expect(
-      screen.getByRole("button", { name: /back to arcade/i })
+      screen.getByRole("link", { name: /back to arcade/i })
     ).toBeTruthy();
     expect(
       screen.getByRole("button", { name: /learning workspace/i })
@@ -99,19 +96,7 @@ describe("STEMARCADE page", () => {
     window.history.pushState({}, "", "/stemarcade/chemistry");
     render(<Stemarcade />);
 
-    fireEvent.click(screen.getByRole("button", { name: /back to arcade/i }));
-
-    expect(`${window.location.pathname}${window.location.search}`).toBe(
-      "/stemarcade?deckPreview=1"
-    );
-    expect(
-      screen
-        .getByRole("main", { name: "STEMARCADE" })
-        .classList.contains("stemarcade-page-direct-return")
-    ).toBe(true);
-    expect(
-      document.querySelector(".stemarcade-deck-layer.is-revealed")
-    ).toBeTruthy();
-    expect(screen.queryByTestId("gallery-tunnel")).toBeNull();
+    const returnLink = screen.getByRole("link", { name: /back to arcade/i });
+    expect(returnLink.getAttribute("href")).toBe("/stemarcade?deckPreview=1");
   });
 });
