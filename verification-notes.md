@@ -27,3 +27,4 @@
 - Live workspace-return verification: holding the selection-menu Back to workspace control continuously displayed the reverse Galaxy Tunnel overlay, kept the hold label active, and restored `/?workspacePreview=1` with the learning workspace visible after three seconds.
 - Updated live check: one Back to workspace click from the selection menu now launches the full reverse Galaxy Tunnel with its visible in-tunnel hold prompt and no requirement to keep pressing the original button.
 - Live reverse-tunnel interaction verification: an in-screen click set the tunnel to its boost state, and a separate continuous three-second in-screen hold restored `/?workspacePreview=1` with the learning workspace visible.
+- Landing header verification: the Begin control is replaced only by the supplied Scan Grid STEMARCADE button, rendered with white STEM/orange ARCADE text and its animated scan/bracket treatment at desktop and mobile sizes.

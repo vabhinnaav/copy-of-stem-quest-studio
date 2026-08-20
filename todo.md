@@ -147,3 +147,5 @@
 - [x] Perform a read-only audit of navigation and API/AI request checks; obtain approval before any corrective change.
 
 - [x] Configure only the optional server-side Gemini credential and validate it without changing application behavior.
+
+- [x] Replace only the landing page’s top-right Begin button with the supplied animated STEMARCADE button linking to https://stemquestg-queoopxf.manus.space.

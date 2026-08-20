@@ -4,6 +4,7 @@ import {
   ReactiveLinesBackdrop,
   TypewriterWordmark,
 } from "@/components/OrangeVisuals";
+import { ScanGridButton } from "@/components/ScanGridButton";
 import {
   dispatchJourneyEvent,
   normalizeJourneyName,
@@ -54,14 +55,16 @@ export function JourneyLanding({
             <a href="#about">About us</a>
             <a href="mailto:hello@stemquest.study">Email</a>
           </nav>
-          <button
-            onClick={() =>
-              setupRef.current?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="orange-outline-button px-4 py-2 text-sm font-semibold"
-          >
-            Begin
-          </button>
+          <div className="w-[142px] shrink-0">
+            <ScanGridButton
+              label="STEMARCADE"
+              padding="9px 12px"
+              rounded={0}
+              onClick={() => {
+                window.location.href = "https://stemquestg-queoopxf.manus.space";
+              }}
+            />
+          </div>
         </header>
         <main className="relative z-10 mx-auto flex min-h-[calc(100vh-84px)] max-w-5xl flex-col items-center justify-center px-5 pb-36 text-center">
           <h1 className="mt-7 max-w-4xl font-serif text-5xl leading-[.92] tracking-[-.06em] text-orange-50 sm:text-7xl">

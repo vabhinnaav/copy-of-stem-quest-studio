@@ -82,6 +82,9 @@ describe("redesigned learner journey UI", () => {
       screen.getAllByRole("button", { name: /start learning/i })
     ).toHaveLength(2);
     expect(
+      screen.getByRole("button", { name: "STEMARCADE" })
+    ).toBeTruthy();
+    expect(
       screen.getByRole("button", { name: /configure ai provider/i })
     ).toBeTruthy();
     await user.click(
