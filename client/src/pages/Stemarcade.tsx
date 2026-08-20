@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import GalleryTunnel from "@/components/GalleryTunnel";
 import StemConceptDeck from "@/components/StemConceptDeck";
 import { useLocation } from "wouter";
@@ -32,8 +32,7 @@ const subjectToSlug: Record<string, keyof typeof SUBJECT_GAMES> = {
 export default function Stemarcade() {
   const [, setLocation] = useLocation();
   const [returning, setReturning] = useState(false);
-  const [workspaceHoldActive, setWorkspaceHoldActive] = useState(false);
-  const workspaceHoldTimerRef = useRef<number | null>(null);
+  const [workspaceTunnelActive, setWorkspaceTunnelActive] = useState(false);
   const [deckOpen, setDeckOpen] = useState(() =>
     new URLSearchParams(window.location.search).has("deckPreview")
   );
@@ -61,37 +60,12 @@ export default function Stemarcade() {
     setLocation(`/stemarcade/${slug}`);
   };
 
-  const cancelWorkspaceHold = () => {
-    if (workspaceHoldTimerRef.current !== null) {
-      window.clearTimeout(workspaceHoldTimerRef.current);
-      workspaceHoldTimerRef.current = null;
-    }
-    setWorkspaceHoldActive(false);
+  const returnFromReverseTunnel = () => {
+    setWorkspaceTunnelActive(false);
+    const returnPath =
+      window.sessionStorage.getItem("stemarcade-return-path") || "/";
+    setLocation(returnPath);
   };
-
-  const beginWorkspaceHold = (
-    event: React.PointerEvent<HTMLButtonElement>
-  ) => {
-    if (event.button !== 0 || workspaceHoldTimerRef.current !== null) return;
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-    setWorkspaceHoldActive(true);
-    workspaceHoldTimerRef.current = window.setTimeout(() => {
-      workspaceHoldTimerRef.current = null;
-      setWorkspaceHoldActive(false);
-      const returnPath =
-        window.sessionStorage.getItem("stemarcade-return-path") || "/";
-      setLocation(returnPath);
-    }, 3000);
-  };
-
-  useEffect(
-    () => () => {
-      if (workspaceHoldTimerRef.current !== null) {
-        window.clearTimeout(workspaceHoldTimerRef.current);
-      }
-    },
-    []
-  );
 
   if (game) {
     return (
@@ -135,27 +109,25 @@ export default function Stemarcade() {
       {returning && (
         <div className="stemarcade-return-transition" aria-hidden="true" />
       )}
-      {workspaceHoldActive && (
+      {workspaceTunnelActive && (
         <div
           className="stemarcade-workspace-return-tunnel"
           aria-hidden="true"
         >
-          <GalleryTunnel label={false} reverse />
+          <GalleryTunnel
+            reverse
+            labelText="Hold for workspace"
+            onHoldComplete={returnFromReverseTunnel}
+          />
         </div>
       )}
       <button
-        className={`stemarcade-return ${
-          workspaceHoldActive ? "is-holding" : ""
-        }`}
+        className="stemarcade-return"
         type="button"
-        aria-label="Press and hold for three seconds to return to workspace"
-        onPointerDown={beginWorkspaceHold}
-        onPointerUp={cancelWorkspaceHold}
-        onPointerCancel={cancelWorkspaceHold}
-        onLostPointerCapture={cancelWorkspaceHold}
+        onClick={() => setWorkspaceTunnelActive(true)}
       >
         <span aria-hidden="true">←</span>
-        {workspaceHoldActive ? "Keep holding · 3s" : "Back to workspace"}
+        Back to workspace
       </button>
       {renderTunnel && (
         <div

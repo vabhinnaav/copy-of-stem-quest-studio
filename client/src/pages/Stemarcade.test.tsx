@@ -5,8 +5,19 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import Stemarcade from "./Stemarcade";
 
 vi.mock("@/components/GalleryTunnel", () => ({
-  default: ({ onHoldComplete }: { onHoldComplete?: () => void }) => (
-    <button data-testid="gallery-tunnel" type="button" onClick={onHoldComplete}>
+  default: ({
+    onHoldComplete,
+    reverse,
+  }: {
+    onHoldComplete?: () => void;
+    reverse?: boolean;
+  }) => (
+    <button
+      data-testid="gallery-tunnel"
+      data-reverse={String(Boolean(reverse))}
+      type="button"
+      onClick={onHoldComplete}
+    >
       Gallery Tunnel
     </button>
   ),
@@ -49,45 +60,22 @@ describe("STEMARCADE page", () => {
     expect(screen.getByLabelText("Coding")).toBeTruthy();
   });
 
-  it("returns to the learning workspace only after a continuous three-second press", () => {
-    vi.useFakeTimers();
-    window.history.pushState({}, "", "/stemarcade");
-    sessionStorage.setItem("stemarcade-return-path", "/?workspacePreview=1");
-    render(<Stemarcade />);
-
-    const control = screen.getByRole("button", {
-      name: /press and hold for three seconds to return to workspace/i,
-    });
-    fireEvent.pointerDown(control, { button: 0, pointerId: 1 });
-    expect(
-      document.querySelector(".stemarcade-workspace-return-tunnel")
-    ).toBeTruthy();
-
-    vi.advanceTimersByTime(3000);
-    expect(`${window.location.pathname}${window.location.search}`).toBe(
-      "/?workspacePreview=1"
-    );
-  });
-
-  it("cancels the workspace return if the three-second press is released early", () => {
-    vi.useFakeTimers();
+  it("starts a reverse tunnel on one workspace click and restores the workspace after its hold completes", () => {
     window.history.pushState({}, "", "/stemarcade?deckPreview=1");
     sessionStorage.setItem("stemarcade-return-path", "/?workspacePreview=1");
     render(<Stemarcade />);
 
-    const control = screen.getByRole("button", {
-      name: /press and hold for three seconds to return to workspace/i,
-    });
-    fireEvent.pointerDown(control, { button: 0, pointerId: 1 });
-    fireEvent.pointerUp(control, { pointerId: 1 });
-    vi.advanceTimersByTime(3000);
-
-    expect(`${window.location.pathname}${window.location.search}`).toBe(
-      "/stemarcade?deckPreview=1"
-    );
+    fireEvent.click(screen.getByRole("button", { name: /back to workspace/i }));
     expect(
       document.querySelector(".stemarcade-workspace-return-tunnel")
-    ).toBeNull();
+    ).toBeTruthy();
+    const reverseTunnel = screen.getByTestId("gallery-tunnel");
+    expect(reverseTunnel.getAttribute("data-reverse")).toBe("true");
+
+    fireEvent.click(reverseTunnel);
+    expect(`${window.location.pathname}${window.location.search}`).toBe(
+      "/?workspacePreview=1"
+    );
   });
 
   it("opens a selected subject game immediately without a transition overlay", () => {

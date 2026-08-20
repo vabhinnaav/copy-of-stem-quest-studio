@@ -478,18 +478,13 @@
   transform: scale(0.97);
 }
 
-.stemarcade-return.is-holding {
-  border-color: rgba(255, 161, 76, 0.95);
-  background: rgba(221, 98, 22, 0.86);
-}
-
 .stemarcade-workspace-return-tunnel {
   position: fixed;
   inset: 0;
   z-index: 9;
   overflow: hidden;
   background: #000;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .stemarcade-return-transition {

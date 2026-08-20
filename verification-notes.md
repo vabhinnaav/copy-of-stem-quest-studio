@@ -25,3 +25,5 @@
 - Back to arcade now applies the direct-return deck state without the STEMARCADE page-arrival animation; the focused return-flow regression passes.
 - Direct-navigation verification: the Chemistry game’s Back to arcade control is now a native link to `/stemarcade?deckPreview=1`; a live click loaded the visible selection menu directly with the fanned cards and no tunnel or transition overlay.
 - Live workspace-return verification: holding the selection-menu Back to workspace control continuously displayed the reverse Galaxy Tunnel overlay, kept the hold label active, and restored `/?workspacePreview=1` with the learning workspace visible after three seconds.
+- Updated live check: one Back to workspace click from the selection menu now launches the full reverse Galaxy Tunnel with its visible in-tunnel hold prompt and no requirement to keep pressing the original button.
+- Live reverse-tunnel interaction verification: an in-screen click set the tunnel to its boost state, and a separate continuous three-second in-screen hold restored `/?workspacePreview=1` with the learning workspace visible.
