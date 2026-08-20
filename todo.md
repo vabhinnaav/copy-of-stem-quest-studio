@@ -147,3 +147,6 @@
 - [x] Perform a read-only audit of navigation and API/AI request checks; obtain approval before any corrective change.
 
 - [x] Configure only the optional server-side Gemini credential and validate it without changing application behavior.
+
+- [x] Add the requested STEMARCADE landing-page navigation entry and dedicated promotional page using the supplied background and text animation code.
+- [x] Preserve existing learning workspace, STEMARCADE tunnel/deck/game flows, AI behavior, and all current routes while adding the promotional page.

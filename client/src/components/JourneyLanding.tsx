@@ -51,6 +51,9 @@ export function JourneyLanding({
             >
               Start learning
             </button>
+            <a href="/stemarcade-promo" className="stemarcade-landing-link">
+              <span>STEM</span><strong>ARCADE</strong>
+            </a>
             <a href="#about">About us</a>
             <a href="mailto:hello@stemquest.study">Email</a>
           </nav>
