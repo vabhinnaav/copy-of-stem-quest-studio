@@ -43,10 +43,10 @@ describe("STEMARCADE page", () => {
     expect(
       screen.getByRole("group", { name: "STEM concept deck" })
     ).toBeTruthy();
-    expect(screen.getByLabelText("Science")).toBeTruthy();
-    expect(screen.getByLabelText("Technology")).toBeTruthy();
-    expect(screen.getByLabelText("Engineering")).toBeTruthy();
-    expect(screen.getByLabelText("Mathematics")).toBeTruthy();
+    expect(screen.getByLabelText("Physics")).toBeTruthy();
+    expect(screen.getByLabelText("Chemistry")).toBeTruthy();
+    expect(screen.getByLabelText("Math")).toBeTruthy();
+    expect(screen.getByLabelText("Coding")).toBeTruthy();
   });
 
   it("returns to the learning workspace through the visible return control", () => {

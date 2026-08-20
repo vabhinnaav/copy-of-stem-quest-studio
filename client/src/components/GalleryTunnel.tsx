@@ -392,7 +392,7 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
     };
     raf = requestAnimationFrame(render);
 
-    const onMove = (event: PointerEvent) => {
+    const positionCursor = (event: PointerEvent) => {
       const cursor = cursorRef.current;
       if (!cursor) return;
       const rect = frame.getBoundingClientRect();
@@ -401,7 +401,11 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
       cursor.style.left = `${(event.clientX - rect.left) * scaleX}px`;
       cursor.style.top = `${(event.clientY - rect.top) * scaleY}px`;
     };
-    const onEnter = () => {
+    const onMove = (event: PointerEvent) => {
+      positionCursor(event);
+    };
+    const onEnter = (event: PointerEvent) => {
+      positionCursor(event);
       const cursor = cursorRef.current;
       if (cursor) cursor.style.opacity = "1";
     };

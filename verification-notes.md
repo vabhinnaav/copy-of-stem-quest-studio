@@ -10,3 +10,4 @@
 - A live touch-style three-second hold revealed the deck, and a subsequent touch swipe advanced its active coverflow card.
 - The visible return control still restored the original learning-workspace preview route after the touch-style deck interaction.
 - In a 375px visual mobile viewport, the live touch-pointer hold revealed the deck, a touch swipe advanced its coverflow state, and the return control restored `/?workspacePreview=1` with the workspace visible.
+- The updated live STEMARCADE route exposes the requested Physics, Chemistry, Math, and Coding deck labels; the cursor overlay is being checked directly against the canvas-adjacent label element.

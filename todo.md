@@ -107,3 +107,7 @@
 - [x] Add mobile-appropriate card movement coverage for the revealed STEM deck.
 
 - [x] Verify the full STEMARCADE hold, reveal, card interaction, and return flow at an actual mobile viewport.
+
+- [x] Restore visible Enter Arcade cursor feedback at the center of the Galaxy Tunnel.
+- [x] Rename the existing fanned cards to Physics, Chemistry, Math, and Coding without changing their mechanics.
+- [x] Verify the focused update preserves all tunnel, hold, deck, and return interactions.

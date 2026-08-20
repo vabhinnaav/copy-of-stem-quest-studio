@@ -41,10 +41,10 @@ interface Smooth3DSlideshowProps {
 }
 
 const STEM_SLIDES: Slide[] = [
-  { title: "Science", symbol: "⚛", accent: "#59d8ff" },
-  { title: "Technology", symbol: "⌘", accent: "#8a7dff" },
-  { title: "Engineering", symbol: "⌬", accent: "#ff9b46" },
-  { title: "Mathematics", symbol: "∑", accent: "#59d18c" },
+  { title: "Physics", symbol: "⚛", accent: "#59d8ff" },
+  { title: "Chemistry", symbol: "⌘", accent: "#8a7dff" },
+  { title: "Math", symbol: "⌬", accent: "#ff9b46" },
+  { title: "Coding", symbol: "∑", accent: "#59d18c" },
 ];
 
 const PERSPECTIVE = 1600;
