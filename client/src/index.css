@@ -394,6 +394,38 @@
   animation: stemarcade-arrive 360ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
+.stemarcade-tunnel-layer,
+.stemarcade-deck-layer {
+  position: absolute;
+  inset: 0;
+  transition:
+    opacity 760ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 760ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.stemarcade-tunnel-layer {
+  opacity: 1;
+}
+
+.stemarcade-tunnel-layer.is-revealed {
+  opacity: 0;
+  transform: scale(1.025);
+  pointer-events: none;
+}
+
+.stemarcade-deck-layer {
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.96);
+}
+
+.stemarcade-deck-layer.is-revealed {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
 .stemarcade-route-transition {
   position: fixed;
   inset: 0;
@@ -490,5 +522,10 @@
   .stemarcade-route-transition,
   .stemarcade-return-transition {
     animation: none;
+  }
+
+  .stemarcade-tunnel-layer,
+  .stemarcade-deck-layer {
+    transition: none;
   }
 }

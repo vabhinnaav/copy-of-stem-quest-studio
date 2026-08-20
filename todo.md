@@ -95,3 +95,15 @@
 
 - [x] Replace all Gallery Tunnel image surfaces with only the six user-supplied STEM-themed images.
 - [x] Verify the supplied images render in the tunnel while entry, return, and existing learning interactions remain intact.
+
+- [x] Add a continuous three-second press-and-hold interaction that fades the STEMARCADE tunnel into the supplied coverflow deck behavior.
+- [x] Populate the coverflow cards with STEM concept text and small concept symbols while retaining the supplied scrolling mechanics.
+- [x] Verify hold timing, card scrolling, tunnel preservation, and return navigation across desktop and mobile.
+
+- [x] Confirm the integrated STEM concept deck retains the supplied coverflow mechanics apart from the requested card-content substitution.
+- [x] Verify the continuous hold, revealed card deck, card movement, and workspace return path at a mobile viewport.
+
+- [x] Verify the three-second hold-to-reveal and return path end to end at a mobile viewport.
+- [x] Add mobile-appropriate card movement coverage for the revealed STEM deck.
+
+- [x] Verify the full STEMARCADE hold, reveal, card interaction, and return flow at an actual mobile viewport.

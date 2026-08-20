@@ -62,6 +62,7 @@ interface ImageBoxProps {
   labelFill: string;
   labelColor: string;
   labelFont: CSSProperties;
+  onHoldComplete?: () => void;
   style?: CSSProperties;
 }
 
@@ -86,12 +87,18 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
     labelFill = DEFAULTS.labelFill,
     labelColor = DEFAULTS.labelColor,
     labelFont = DEFAULTS.labelFont,
+    onHoldComplete,
     style,
   } = props;
 
   const frameRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const cursorRef = useRef<HTMLDivElement | null>(null);
+  const onHoldCompleteRef = useRef(onHoldComplete);
+
+  useEffect(() => {
+    onHoldCompleteRef.current = onHoldComplete;
+  }, [onHoldComplete]);
 
   const urls = useMemo(() => {
     const list = (images ?? []).map(srcOf).filter(Boolean);
@@ -154,6 +161,8 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
     let raf = 0;
     let last = 0;
     let pressed = false;
+    let holdTimer: number | null = null;
+    let holdTriggered = false;
     let alive = true;
 
     const halfWidth = TUNNEL_WIDTH / 2;
@@ -398,6 +407,8 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
     };
     const onLeave = () => {
       pressed = false;
+      if (holdTimer !== null) window.clearTimeout(holdTimer);
+      holdTimer = null;
       const cursor = cursorRef.current;
       if (cursor) {
         cursor.style.opacity = "0";
@@ -406,11 +417,21 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
     };
     const onDown = () => {
       pressed = true;
+      holdTriggered = false;
+      if (holdTimer !== null) window.clearTimeout(holdTimer);
+      holdTimer = window.setTimeout(() => {
+        holdTimer = null;
+        holdTriggered = true;
+        pressed = false;
+        onHoldCompleteRef.current?.();
+      }, 3000);
       const cursor = cursorRef.current;
       if (cursor) cursor.style.transform = "translate(0%, -100%) scale(0.85)";
     };
     const onUp = () => {
       pressed = false;
+      if (holdTimer !== null) window.clearTimeout(holdTimer);
+      holdTimer = null;
       const cursor = cursorRef.current;
       if (cursor) cursor.style.transform = "translate(0%, -100%) scale(1)";
     };
@@ -419,6 +440,7 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
     frame.addEventListener("pointerenter", onEnter);
     frame.addEventListener("pointerleave", onLeave);
     frame.addEventListener("pointerdown", onDown);
+    frame.addEventListener("pointercancel", onLeave);
     window.addEventListener("pointerup", onUp);
 
     return () => {
@@ -429,7 +451,9 @@ function OriginkitBaseImageBox(props: Partial<ImageBoxProps>) {
       frame.removeEventListener("pointerenter", onEnter);
       frame.removeEventListener("pointerleave", onLeave);
       frame.removeEventListener("pointerdown", onDown);
+      frame.removeEventListener("pointercancel", onLeave);
       window.removeEventListener("pointerup", onUp);
+      if (holdTimer !== null) window.clearTimeout(holdTimer);
       floorGeometry.dispose();
       wallGeometry.dispose();
       zTubeGeometry.dispose();

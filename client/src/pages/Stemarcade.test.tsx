@@ -5,7 +5,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import Stemarcade from "./Stemarcade";
 
 vi.mock("@/components/GalleryTunnel", () => ({
-  default: () => <div data-testid="gallery-tunnel" />,
+  default: ({ onHoldComplete }: { onHoldComplete?: () => void }) => (
+    <button data-testid="gallery-tunnel" type="button" onClick={onHoldComplete}>
+      Gallery Tunnel
+    </button>
+  ),
 }));
 
 afterEach(() => {
@@ -24,6 +28,25 @@ describe("STEMARCADE page", () => {
         .classList.contains("stemarcade-page")
     ).toBe(true);
     expect(screen.getByTestId("gallery-tunnel")).toBeTruthy();
+  });
+
+  it("reveals the STEM concept deck after the tunnel reports a completed hold", () => {
+    render(<Stemarcade />);
+
+    expect(
+      document.querySelector(".stemarcade-deck-layer.is-revealed")
+    ).toBeNull();
+    fireEvent.click(screen.getByTestId("gallery-tunnel"));
+    expect(
+      document.querySelector(".stemarcade-deck-layer.is-revealed")
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("group", { name: "STEM concept deck" })
+    ).toBeTruthy();
+    expect(screen.getByLabelText("Science")).toBeTruthy();
+    expect(screen.getByLabelText("Technology")).toBeTruthy();
+    expect(screen.getByLabelText("Engineering")).toBeTruthy();
+    expect(screen.getByLabelText("Mathematics")).toBeTruthy();
   });
 
   it("returns to the learning workspace through the visible return control", () => {
