@@ -36,10 +36,11 @@ export default function Stemarcade() {
   const [deckOpen, setDeckOpen] = useState(() =>
     new URLSearchParams(window.location.search).has("deckPreview")
   );
-  const routeShowsDeck = new URLSearchParams(location.split("?")[1] ?? "").has(
+  const routeShowsDeck = new URLSearchParams(window.location.search).has(
     "deckPreview"
   );
   const revealedDeck = deckOpen || routeShowsDeck;
+  const renderTunnel = !routeShowsDeck;
   const gameSlug = window.location.pathname.split(
     "/"
   )[2] as keyof typeof SUBJECT_GAMES;
@@ -114,11 +115,13 @@ export default function Stemarcade() {
         <span aria-hidden="true">←</span>
         Back to workspace
       </button>
-      <div
-        className={`stemarcade-tunnel-layer ${revealedDeck ? "is-revealed" : ""}`}
-      >
-        <GalleryTunnel onHoldComplete={() => setDeckOpen(true)} />
-      </div>
+      {renderTunnel && (
+        <div
+          className={`stemarcade-tunnel-layer ${revealedDeck ? "is-revealed" : ""}`}
+        >
+          <GalleryTunnel onHoldComplete={() => setDeckOpen(true)} />
+        </div>
+      )}
       <div
         className={`stemarcade-deck-layer ${revealedDeck ? "is-revealed" : ""}`}
       >

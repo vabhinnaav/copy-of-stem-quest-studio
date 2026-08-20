@@ -107,5 +107,6 @@ describe("STEMARCADE page", () => {
     expect(
       document.querySelector(".stemarcade-deck-layer.is-revealed")
     ).toBeTruthy();
+    expect(screen.queryByTestId("gallery-tunnel")).toBeNull();
   });
 });

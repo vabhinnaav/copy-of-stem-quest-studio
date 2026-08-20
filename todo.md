@@ -133,3 +133,5 @@
 - [x] Verify the repaired game return, workspace return, and responsive control presentation end to end.
 
 - [x] Ensure the mobile navigation toolbar clears the supplied game header and content instead of obscuring it.
+
+- [x] Fix the reported Back to arcade regression that returns to a blank tunnel state instead of the revealed fanned deck.
