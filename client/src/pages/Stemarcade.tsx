@@ -30,12 +30,16 @@ const subjectToSlug: Record<string, keyof typeof SUBJECT_GAMES> = {
 };
 
 export default function Stemarcade() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [returning, setReturning] = useState(false);
   const [enteringGame, setEnteringGame] = useState(false);
   const [deckOpen, setDeckOpen] = useState(() =>
     new URLSearchParams(window.location.search).has("deckPreview")
   );
+  const routeShowsDeck = new URLSearchParams(location.split("?")[1] ?? "").has(
+    "deckPreview"
+  );
+  const revealedDeck = deckOpen || routeShowsDeck;
   const gameSlug = window.location.pathname.split(
     "/"
   )[2] as keyof typeof SUBJECT_GAMES;
@@ -56,24 +60,35 @@ export default function Stemarcade() {
     window.setTimeout(() => setLocation(`/stemarcade/${slug}`), 340);
   };
 
+  const returnToDeck = () => {
+    setDeckOpen(true);
+    setLocation("/stemarcade?deckPreview=1");
+  };
+
   if (game) {
     return (
       <main className="stemarcade-game-page" aria-label={game.title}>
-        <button
-          className="stemarcade-return stemarcade-game-back"
-          type="button"
-          onClick={() => setLocation("/stemarcade?deckPreview=1")}
-        >
-          <span aria-hidden="true">←</span>
-          Back to arcade
-        </button>
-        <button
-          className="stemarcade-return stemarcade-game-workspace"
-          type="button"
-          onClick={returnToWorkspace}
-        >
-          Back to workspace
-        </button>
+        {returning && (
+          <div className="stemarcade-return-transition" aria-hidden="true" />
+        )}
+        <nav className="stemarcade-game-nav" aria-label="Game navigation">
+          <button
+            className="stemarcade-game-control stemarcade-game-control-primary"
+            type="button"
+            onClick={returnToDeck}
+          >
+            <span aria-hidden="true">←</span>
+            <span>Back to arcade</span>
+          </button>
+          <button
+            className="stemarcade-game-control"
+            type="button"
+            onClick={returnToWorkspace}
+          >
+            <span aria-hidden="true">⌂</span>
+            <span>Learning workspace</span>
+          </button>
+        </nav>
         <iframe
           className="stemarcade-game-frame"
           src={game.source}
@@ -100,11 +115,13 @@ export default function Stemarcade() {
         Back to workspace
       </button>
       <div
-        className={`stemarcade-tunnel-layer ${deckOpen ? "is-revealed" : ""}`}
+        className={`stemarcade-tunnel-layer ${revealedDeck ? "is-revealed" : ""}`}
       >
         <GalleryTunnel onHoldComplete={() => setDeckOpen(true)} />
       </div>
-      <div className={`stemarcade-deck-layer ${deckOpen ? "is-revealed" : ""}`}>
+      <div
+        className={`stemarcade-deck-layer ${revealedDeck ? "is-revealed" : ""}`}
+      >
         <StemConceptDeck onSelect={openSubjectGame} />
       </div>
     </main>

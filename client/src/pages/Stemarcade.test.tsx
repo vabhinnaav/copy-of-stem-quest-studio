@@ -90,5 +90,22 @@ describe("STEMARCADE page", () => {
     expect(
       screen.getByRole("button", { name: /back to arcade/i })
     ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: /learning workspace/i })
+    ).toBeTruthy();
+  });
+
+  it("returns from a supplied game to the visible revealed deck", () => {
+    window.history.pushState({}, "", "/stemarcade/chemistry");
+    render(<Stemarcade />);
+
+    fireEvent.click(screen.getByRole("button", { name: /back to arcade/i }));
+
+    expect(`${window.location.pathname}${window.location.search}`).toBe(
+      "/stemarcade?deckPreview=1"
+    );
+    expect(
+      document.querySelector(".stemarcade-deck-layer.is-revealed")
+    ).toBeTruthy();
   });
 });

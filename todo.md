@@ -127,3 +127,9 @@
 - [x] Live-verify hold reveal, scroll-hover-select, supplied game entry, arcade return, and workspace return after the final integration.
 
 - [x] Live-verify a selected game returns through STEMARCADE to the preserved learning-workspace URL and context.
+
+- [x] Fix Back to arcade so a subject game always restores the visible revealed deck rather than a black screen.
+- [x] Rework the game navigation controls into a cohesive, accessible layout with clear arcade and workspace actions.
+- [x] Verify the repaired game return, workspace return, and responsive control presentation end to end.
+
+- [x] Ensure the mobile navigation toolbar clears the supplied game header and content instead of obscuring it.

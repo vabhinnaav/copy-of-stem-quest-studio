@@ -19,3 +19,4 @@
 - The managed preview captured the revealed deck and all four game routes. Each staged game file was verified byte-for-byte against its corresponding user-supplied HTML source; TypeScript and the focused deck and STEMARCADE route regressions passed.
 - A live round trip confirmed the three-second hold revealed the deck, wheel input advanced Chemistry, hover applied its lift, selection opened `/stemarcade/chemistry` using the supplied Balance Lab file, and Back to arcade restored `/stemarcade?deckPreview=1`.
 - The full live chain then used Back to workspace and restored `/?workspacePreview=1` with the learning workspace visible.
+- After the return-state repair, the live Chemistry page’s Back to arcade action restored the visible fanned deck at `/stemarcade?deckPreview=1`; the deck’s Back to workspace action then restored `/?workspacePreview=1` with the workspace visible.
