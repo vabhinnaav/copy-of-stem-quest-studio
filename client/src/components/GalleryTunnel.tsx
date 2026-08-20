@@ -4,11 +4,12 @@ import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import * as THREE from "three";
 
 const DEFAULT_IMAGES = [
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/f8b3688c-11d0-425c-0b6f-66f133322c00/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/c083d83a-f5a4-4434-989f-4eaa9bbe7500/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/12e8b0be-f114-4134-1ab7-53116bfc2800/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/b14ae2a2-1116-4a7f-0a18-1d74c4a46f00/w=800",
-  "https://imagedelivery.net/IEUjvl3YUlxY-MrTpOAWDQ/babdb603-8b5b-4520-58d6-240a34463c00/w=800",
+  "/manus-storage/Clock_a77445b7.jpeg",
+  "/manus-storage/Chem_87a26f53.jpeg",
+  "/manus-storage/coding_d9da39cc.jpeg",
+  "/manus-storage/cat1_6910ed7b.jpeg",
+  "/manus-storage/cat2_4aafc53c.jpeg",
+  "/manus-storage/Physics_537c0207.jpeg",
 ];
 
 const DEFAULTS = {

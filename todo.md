@@ -92,3 +92,6 @@
 - [x] Verify, through the routed application, that returning from STEMARCADE restores the learning workspace and its preview learner state.
 
 - [x] Preserve the originating workspace URL and query context so STEMARCADE returns learners to the exact view they left.
+
+- [x] Replace all Gallery Tunnel image surfaces with only the six user-supplied STEM-themed images.
+- [x] Verify the supplied images render in the tunnel while entry, return, and existing learning interactions remain intact.
