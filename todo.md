@@ -143,3 +143,7 @@
 - [x] Require a continuous three-second Back to workspace press that plays the Galaxy Tunnel in reverse before restoring the learning workspace.
 
 - [x] Start the reverse Galaxy Tunnel on one Back to workspace click, then support click-to-boost and three-second hold-anywhere to restore the learning workspace.
+
+- [x] Perform a read-only audit of navigation and API/AI request checks; obtain approval before any corrective change.
+
+- [x] Configure only the optional server-side Gemini credential and validate it without changing application behavior.
