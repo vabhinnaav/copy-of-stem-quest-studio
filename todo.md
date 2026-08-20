@@ -118,3 +118,12 @@
 
 - [x] Re-verify the updated tunnel supports both a quick center-click boost and a continuous three-second hold reveal.
 - [x] Reconfirm a deck card interaction after the updated tunnel behavior reveals the deck.
+
+- [x] Keep wheel and touch scrolling as the only card-advancement mechanism, add a subtle hover selection lift, and prevent single clicks from re-centering cards.
+- [x] Route selected Physics, Chemistry, Math, and Coding cards through smooth transitions into their corresponding user-supplied game implementations.
+- [x] Verify the supplied game mechanics remain unchanged and all existing STEMARCADE, tunnel, deck, and workspace flows are preserved.
+
+- [x] Remove keyboard-based card advancement so only wheel and touch gestures move the deck.
+- [x] Live-verify hold reveal, scroll-hover-select, supplied game entry, arcade return, and workspace return after the final integration.
+
+- [x] Live-verify a selected game returns through STEMARCADE to the preserved learning-workspace URL and context.

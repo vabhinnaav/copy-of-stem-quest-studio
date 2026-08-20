@@ -10,9 +10,10 @@ afterEach(() => {
 });
 
 describe("STEM concept coverflow", () => {
-  it("preserves the supplied coverflow wheel, keyboard, and card-centering mechanics with STEM-only card content", () => {
+  it("keeps wheel movement while a single click selects a card without re-centering it", () => {
     vi.useFakeTimers();
-    render(<StemConceptDeck />);
+    const onSelect = vi.fn();
+    render(<StemConceptDeck onSelect={onSelect} />);
 
     const deck = screen.getByRole("group", { name: "STEM concept deck" });
     const physics = screen.getByLabelText("Physics");
@@ -23,12 +24,15 @@ describe("STEM concept coverflow", () => {
     expect(physics.style.transform).toContain("translateX(-240px)");
 
     vi.advanceTimersByTime(600);
-    fireEvent.keyDown(deck, { key: "ArrowLeft" });
-    expect(physics.style.transform).toContain("translateX(0px)");
+    const beforeHover = chemistry.style.transform;
+    fireEvent.pointerEnter(chemistry);
+    expect(chemistry.style.transform).not.toBe(beforeHover);
+    fireEvent.pointerLeave(chemistry);
 
-    vi.advanceTimersByTime(600);
+    const beforeSelect = chemistry.style.transform;
     fireEvent.click(chemistry);
-    expect(chemistry.style.transform).toContain("translateX(0px)");
+    expect(onSelect).toHaveBeenCalledWith("Chemistry");
+    expect(chemistry.style.transform).toBe(beforeSelect);
   });
 
   it("advances the revealed STEM deck through a mobile touch swipe", () => {

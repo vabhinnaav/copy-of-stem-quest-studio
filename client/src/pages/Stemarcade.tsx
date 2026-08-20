@@ -3,12 +3,43 @@ import GalleryTunnel from "@/components/GalleryTunnel";
 import StemConceptDeck from "@/components/StemConceptDeck";
 import { useLocation } from "wouter";
 
+const SUBJECT_GAMES = {
+  physics: {
+    title: "Physics · Trajectory Lab",
+    source: "/manus-storage/physics-trajectory-lab_a746b643.html",
+  },
+  chemistry: {
+    title: "Chemistry · Balance Lab",
+    source: "/manus-storage/chemistry-equation-balancer_13d4587e.html",
+  },
+  math: {
+    title: "Math · Graph Detective",
+    source: "/manus-storage/math-graph-detective_bcc6c109.html",
+  },
+  coding: {
+    title: "Coding · Challenge Arena",
+    source: "/manus-storage/coding-challenge-arena_fc7cdf74.html",
+  },
+} as const;
+
+const subjectToSlug: Record<string, keyof typeof SUBJECT_GAMES> = {
+  Physics: "physics",
+  Chemistry: "chemistry",
+  Math: "math",
+  Coding: "coding",
+};
+
 export default function Stemarcade() {
   const [, setLocation] = useLocation();
   const [returning, setReturning] = useState(false);
+  const [enteringGame, setEnteringGame] = useState(false);
   const [deckOpen, setDeckOpen] = useState(() =>
     new URLSearchParams(window.location.search).has("deckPreview")
   );
+  const gameSlug = window.location.pathname.split(
+    "/"
+  )[2] as keyof typeof SUBJECT_GAMES;
+  const game = SUBJECT_GAMES[gameSlug];
 
   const returnToWorkspace = () => {
     if (returning) return;
@@ -18,10 +49,47 @@ export default function Stemarcade() {
     window.setTimeout(() => setLocation(returnPath), 260);
   };
 
+  const openSubjectGame = (subject: string) => {
+    const slug = subjectToSlug[subject];
+    if (!slug || enteringGame) return;
+    setEnteringGame(true);
+    window.setTimeout(() => setLocation(`/stemarcade/${slug}`), 340);
+  };
+
+  if (game) {
+    return (
+      <main className="stemarcade-game-page" aria-label={game.title}>
+        <button
+          className="stemarcade-return stemarcade-game-back"
+          type="button"
+          onClick={() => setLocation("/stemarcade?deckPreview=1")}
+        >
+          <span aria-hidden="true">←</span>
+          Back to arcade
+        </button>
+        <button
+          className="stemarcade-return stemarcade-game-workspace"
+          type="button"
+          onClick={returnToWorkspace}
+        >
+          Back to workspace
+        </button>
+        <iframe
+          className="stemarcade-game-frame"
+          src={game.source}
+          title={game.title}
+        />
+      </main>
+    );
+  }
+
   return (
     <main className="stemarcade-page" aria-label="STEMARCADE">
       {returning && (
         <div className="stemarcade-return-transition" aria-hidden="true" />
+      )}
+      {enteringGame && (
+        <div className="stemarcade-game-transition" aria-hidden="true" />
       )}
       <button
         className="stemarcade-return"
@@ -37,7 +105,7 @@ export default function Stemarcade() {
         <GalleryTunnel onHoldComplete={() => setDeckOpen(true)} />
       </div>
       <div className={`stemarcade-deck-layer ${deckOpen ? "is-revealed" : ""}`}>
-        <StemConceptDeck />
+        <StemConceptDeck onSelect={openSubjectGame} />
       </div>
     </main>
   );

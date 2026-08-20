@@ -65,4 +65,30 @@ describe("STEMARCADE page", () => {
       "/?workspacePreview=1"
     );
   });
+
+  it("transitions a selected subject from the deck into its supplied game frame", () => {
+    vi.useFakeTimers();
+    window.history.pushState({}, "", "/stemarcade");
+    render(<Stemarcade />);
+
+    fireEvent.click(screen.getByTestId("gallery-tunnel"));
+    fireEvent.click(screen.getByLabelText("Physics"));
+    expect(document.querySelector(".stemarcade-game-transition")).toBeTruthy();
+
+    vi.advanceTimersByTime(340);
+    expect(window.location.pathname).toBe("/stemarcade/physics");
+  });
+
+  it("renders the corresponding user-supplied game in an isolated frame", () => {
+    window.history.pushState({}, "", "/stemarcade/coding");
+    render(<Stemarcade />);
+
+    const frame = screen.getByTitle("Coding · Challenge Arena");
+    expect(frame.getAttribute("src")).toBe(
+      "/manus-storage/coding-challenge-arena_fc7cdf74.html"
+    );
+    expect(
+      screen.getByRole("button", { name: /back to arcade/i })
+    ).toBeTruthy();
+  });
 });

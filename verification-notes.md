@@ -14,3 +14,8 @@
 - The center-click boost check is being restarted from a fresh STEMARCADE browser route after the prior browser context detached during the inspection.
 - A fresh center click set the live tunnel state to `boost` during the burst and returned it to `cruise` afterward; the Math card displays the `π` symbol.
 - After the boost change, a live quick center click entered `boost` then returned to `cruise`; a continuous three-second hold still revealed the deck, and clicking Chemistry moved that card to the coverflow center.
+- The post-change deck validation is being restarted from a fresh STEMARCADE route after the prior browser context detached before the tunnel canvas could be accessed.
+- The browser console detached again during the deck-to-game check, so route and rendering validation is continuing through the managed preview and regression suite.
+- The managed preview captured the revealed deck and all four game routes. Each staged game file was verified byte-for-byte against its corresponding user-supplied HTML source; TypeScript and the focused deck and STEMARCADE route regressions passed.
+- A live round trip confirmed the three-second hold revealed the deck, wheel input advanced Chemistry, hover applied its lift, selection opened `/stemarcade/chemistry` using the supplied Balance Lab file, and Back to arcade restored `/stemarcade?deckPreview=1`.
+- The full live chain then used Back to workspace and restored `/?workspacePreview=1` with the learning workspace visible.

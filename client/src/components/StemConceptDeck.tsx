@@ -4,7 +4,6 @@ import React, {
   useRef,
   useState,
   type CSSProperties,
-  type KeyboardEvent,
   type WheelEvent,
 } from "react";
 
@@ -18,6 +17,7 @@ interface Slide {
 
 interface Smooth3DSlideshowProps {
   slides?: Slide[];
+  onSelect?: (subject: string) => void;
   cardWidth?: number;
   cardHeight?: number;
   radius?: number;
@@ -72,6 +72,7 @@ function cssTransition(transition: Smooth3DSlideshowProps["transition"]) {
 function OriginkitBaseSmooth3DSlideshow(props: Smooth3DSlideshowProps) {
   const {
     slides = STEM_SLIDES,
+    onSelect,
     cardWidth = 400,
     cardHeight = 400,
     radius = 3,
@@ -106,8 +107,10 @@ function OriginkitBaseSmooth3DSlideshow(props: Smooth3DSlideshowProps) {
   const list = slides.length ? slides : STEM_SLIDES;
   const count = list.length;
   const [active, setActive] = useState(0);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const lockRef = useRef(false);
   const touchStartRef = useRef<number | null>(null);
+  const touchMovedRef = useRef(false);
   const { duration, ease } = cssTransition(transition);
 
   useEffect(() => {
@@ -135,24 +138,10 @@ function OriginkitBaseSmooth3DSlideshow(props: Smooth3DSlideshowProps) {
 
   const handleCardClick = useCallback(
     (index: number) => {
-      if (autoplay || lockRef.current) return;
-      lock();
-      setActive(current => (index === current ? (current + 1) % count : index));
+      if (autoplay || lockRef.current || touchMovedRef.current) return;
+      onSelect?.(list[index]?.title ?? "");
     },
-    [autoplay, count, lock]
-  );
-
-  const onKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        step(1);
-      } else if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        step(-1);
-      }
-    },
-    [step]
+    [autoplay, list, onSelect]
   );
 
   const onWheel = useCallback(
@@ -166,7 +155,10 @@ function OriginkitBaseSmooth3DSlideshow(props: Smooth3DSlideshowProps) {
 
   const onPointerDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      if (event.pointerType === "touch") touchStartRef.current = event.clientX;
+      if (event.pointerType === "touch") {
+        touchStartRef.current = event.clientX;
+        touchMovedRef.current = false;
+      }
     },
     []
   );
@@ -178,7 +170,11 @@ function OriginkitBaseSmooth3DSlideshow(props: Smooth3DSlideshowProps) {
       if (start === null || event.pointerType !== "touch") return;
       const distance = event.clientX - start;
       if (Math.abs(distance) < 32) return;
+      touchMovedRef.current = true;
       step(distance < 0 ? 1 : -1);
+      window.setTimeout(() => {
+        touchMovedRef.current = false;
+      }, 0);
     },
     [step]
   );
@@ -208,11 +204,9 @@ function OriginkitBaseSmooth3DSlideshow(props: Smooth3DSlideshowProps) {
         overflow: "hidden",
         outline: "none",
       }}
-      tabIndex={0}
       role="group"
       aria-roledescription="carousel"
       aria-label="STEM concept deck"
-      onKeyDown={onKeyDown}
       onWheel={onWheel}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
@@ -237,6 +231,7 @@ function OriginkitBaseSmooth3DSlideshow(props: Smooth3DSlideshowProps) {
           const visible = absolute <= MAX_VISIBLE;
           const isActive = relative === 0;
           const scale = Math.max(0.4, 1 - absolute * SCALE_STEP);
+          const hoverScale = hoveredIndex === index ? 1.06 : 1;
           const translateX = relative * (gap * 30);
           const translateZ = -absolute * DEPTH;
           const rotateY = -relative * tilt;
@@ -251,10 +246,10 @@ function OriginkitBaseSmooth3DSlideshow(props: Smooth3DSlideshowProps) {
             overflow: "hidden",
             transformStyle: "preserve-3d",
             transformOrigin: "center center",
-            transform: `translate(-50%, -50%) translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`,
+            transform: `translate(-50%, -50%) translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale * hoverScale})`,
             transition: transitionCss,
             opacity: visible ? 1 : 0,
-            cursor: autoplay || isActive ? "default" : "pointer",
+            cursor: autoplay ? "default" : "pointer",
             pointerEvents: visible && !autoplay ? "auto" : "none",
             background: `radial-gradient(circle at 30% 20%, ${slide.accent}55, transparent 38%), #0b0b0d`,
             border: `1px solid ${slide.accent}80`,
@@ -265,6 +260,10 @@ function OriginkitBaseSmooth3DSlideshow(props: Smooth3DSlideshowProps) {
               key={slide.title}
               style={cardStyle}
               onClick={() => handleCardClick(index)}
+              onPointerEnter={() => setHoveredIndex(index)}
+              onPointerLeave={() =>
+                setHoveredIndex(current => (current === index ? null : current))
+              }
               aria-label={slide.title}
               aria-hidden={!visible}
             >
@@ -342,6 +341,10 @@ function OriginkitBaseSmooth3DSlideshow(props: Smooth3DSlideshowProps) {
   );
 }
 
-export default function StemConceptDeck() {
-  return <OriginkitBaseSmooth3DSlideshow />;
+export default function StemConceptDeck({
+  onSelect,
+}: {
+  onSelect?: (subject: string) => void;
+}) {
+  return <OriginkitBaseSmooth3DSlideshow onSelect={onSelect} />;
 }

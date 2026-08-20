@@ -14,6 +14,7 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/stemarcade/:subject"} component={Stemarcade} />
       <Route path={"/stemarcade"} component={Stemarcade} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
