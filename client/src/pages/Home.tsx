@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { JourneyLanding } from "@/components/JourneyLanding";
+import { ScanGridButton } from "@/components/ScanGridButton";
 import { JOURNEY_EVENTS } from "@/lib/journeyContract";
 import { getActiveAIConnection } from "@/lib/aiConnection";
 import { prepareSectorEntry } from "@/lib/challengeLifecycle";
@@ -369,6 +370,28 @@ export default function Home() {
             icon={BookOpen}
             onClick={() => showOverview("activity")}
           />
+          <div className="pt-3">
+            <ScanGridButton
+              label="STEMARCADE"
+              padding="10px 12px"
+              rounded={0}
+              colors={{
+                fill: "#090604",
+                hoverFill: "#090604",
+                textColor: "#FFFFFF",
+                hoverTextColor: "#FFFFFF",
+              }}
+              border={{
+                borderWidth: 1,
+                borderStyle: "solid",
+                borderColor: "rgba(255, 132, 0, 0.55)",
+              }}
+              glitchIntensity={0}
+              scan={{ color: "#FF8400", speed: 50 }}
+              className="font-mono-quest text-xs font-bold tracking-[.06em]"
+              variant="desktop"
+            />
+          </div>
         </nav>
         <div className="mt-auto border-t border-orange-100/12 pt-4">
           <p className="text-xs font-semibold text-orange-50">{learner.name}</p>
@@ -413,6 +436,28 @@ export default function Home() {
           </button>
         </div>
       </header>
+      <div className="border-b border-orange-100/15 bg-[#100804]/95 px-5 py-2 lg:hidden">
+        <ScanGridButton
+          label="STEMARCADE"
+          padding="8px 10px"
+          rounded={0}
+          colors={{
+            fill: "#090604",
+            hoverFill: "#090604",
+            textColor: "#FFFFFF",
+            hoverTextColor: "#FFFFFF",
+          }}
+          border={{
+            borderWidth: 1,
+            borderStyle: "solid",
+            borderColor: "rgba(255, 132, 0, 0.55)",
+          }}
+          glitchIntensity={0}
+          scan={{ color: "#FF8400", speed: 50 }}
+          className="font-mono-quest text-xs font-bold tracking-[.06em]"
+          variant="mobile"
+        />
+      </div>
       <main className="mx-auto max-w-[1440px] px-5 py-7 lg:ml-60 lg:px-8">
         {workspaceOpen ? (
           <PracticeWorkspace

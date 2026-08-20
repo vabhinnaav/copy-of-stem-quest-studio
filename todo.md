@@ -72,3 +72,13 @@
 
 - [x] Remove nonessential secondary helper text and refine the font treatment and contrast of supporting copy across the learning interface.
 - [x] Verify the streamlined typography on desktop and mobile, with regression coverage for affected interface copy.
+
+- [x] Add a STEMARCADE workspace navigation entry with white STEM and orange ARCADE lettering.
+- [x] Integrate the supplied scan-grid hover and click animation behavior, then verify it on desktop and mobile.
+
+- [x] Remove scan-grid animation runtime warnings while preserving the supplied hover, focus, and click behavior.
+- [x] Verify the STEMARCADE interaction and responsive visibility at desktop and mobile breakpoints.
+
+- [x] Add a mobile-accessible STEMARCADE control and verify its focused interaction alongside the desktop sidebar version.
+
+- [x] Explicitly exercise the mobile STEMARCADE control’s focus and click behavior in the regression suite.

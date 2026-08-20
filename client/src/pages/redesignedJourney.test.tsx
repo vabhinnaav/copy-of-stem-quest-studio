@@ -118,6 +118,24 @@ describe("redesigned learner journey UI", () => {
       ).toBeTruthy();
     expect(document.querySelectorAll(".subject-peel")).toHaveLength(4);
     expect(document.querySelectorAll(".subject-peel-corner")).toHaveLength(4);
+    const stemarcadeButtons = screen.getAllByRole("button", {
+      name: "STEMARCADE",
+    });
+    expect(stemarcadeButtons).toHaveLength(2);
+    const desktopStemarcade = stemarcadeButtons.find(
+      button => button.dataset.stemarcadeVariant === "desktop"
+    );
+    const mobileStemarcade = stemarcadeButtons.find(
+      button => button.dataset.stemarcadeVariant === "mobile"
+    );
+    expect(desktopStemarcade).toBeTruthy();
+    expect(mobileStemarcade).toBeTruthy();
+    await user.hover(desktopStemarcade!);
+    await user.click(desktopStemarcade!);
+    mobileStemarcade!.focus();
+    expect(document.activeElement).toBe(mobileStemarcade);
+    await user.click(mobileStemarcade!);
+    expect(screen.getByText("Learning workspace")).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "Profile" }));
     expect(
